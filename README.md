@@ -17,3 +17,15 @@ Once you've created a project and installed dependencies with `npm install` (or 
 ```bash
 npm run dev
 ```
+
+## 初始化项目
+
+先用 vercel 提供的官方模板，走通整个流程。
+
+- https://vercel.com/docs/frameworks/backend/nitro
+
+再用 nitro 提供的模板，迁移缺少的配置文件。
+
+```bash
+pnpm dlx giget@latest nitro nitro-app --install
+```
