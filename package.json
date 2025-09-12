@@ -3,9 +3,10 @@
   "private": true,
   "packageManager": "pnpm@10.15.1",
   "scripts": {
-    "build:vercel": "nitro build --preset=vercel",
-    "build": "pnpm build:vercel",
     "dev": "nitro dev",
+    "build": "pnpm build:vercel",
+    "build:vercel": "nitro build --preset=vercel",
+    "build:cloudflare": "nitro build --preset=cloudflare_module",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs"
   },
