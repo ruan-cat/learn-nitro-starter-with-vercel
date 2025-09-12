@@ -1,5 +1,7 @@
 {
+  "name": "nitro-app",
   "private": true,
+  "packageManager": "pnpm@10.15.1",
   "scripts": {
     "build": "nitro build",
     "dev": "nitro dev",
@@ -7,6 +9,7 @@
     "preview": "node .output/server/index.mjs"
   },
   "devDependencies": {
-    "nitropack": "latest"
+    "h3": "^1.15.4",
+    "nitropack": "^2.12.4"
   }
 }

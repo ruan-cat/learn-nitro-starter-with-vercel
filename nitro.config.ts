@@ -1,4 +1,8 @@
-//https://nitro.unjs.io/config
+import { defineNitroConfig } from "nitropack/config";
+
+// https://nitro.build/config
 export default defineNitroConfig({
-  srcDir: "server"
+  compatibilityDate: "latest",
+  srcDir: "server",
+  imports: false,
 });
