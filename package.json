@@ -3,7 +3,8 @@
   "private": true,
   "packageManager": "pnpm@10.15.1",
   "scripts": {
-    "build": "nitro build",
+    "build:vercel": "nitro build --preset=vercel",
+    "build": "pnpm build:vercel",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs"
