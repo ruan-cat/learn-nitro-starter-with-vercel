@@ -1,3 +1,4 @@
+import { defineEventHandler } from "h3";
 export default defineEventHandler((event) => {
   return `
     <!DOCTYPE html>
@@ -86,5 +87,5 @@ export default defineEventHandler((event) => {
       </div>
     </body>
     </html>
-  `
-})
+  `;
+});
