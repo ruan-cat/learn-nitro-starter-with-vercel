@@ -13,7 +13,7 @@ export default defineNitroConfig({
    * @see https://nitro.build/deploy/providers/cloudflare#cloudflare-workers
    */
   cloudflare: {
-    deployConfig: true,
+    deployConfig: false,
     nodeCompat: true,
     // wrangler: {
     //   account_id: "your-account-id",

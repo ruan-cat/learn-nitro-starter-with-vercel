@@ -6,5 +6,6 @@ dist
 .output
 .env
 .vercel
+.wrangler
 
 pnpm-lock.yaml
