@@ -8,11 +8,16 @@ export default defineNitroConfig({
   srcDir: "server",
   imports: false,
 
-  // 配置 cloudflare worker 部署
-  // cloudflare: {
-  //   wrangler: {
-  //     account_id: "your-account-id",
-  //     route: "your-route",
-  //   },
-  // },
+  /**
+   * 配置 cloudflare worker 部署
+   * @see https://nitro.build/deploy/providers/cloudflare#cloudflare-workers
+   */
+  cloudflare: {
+    deployConfig: true,
+    nodeCompat: true,
+    // wrangler: {
+    //   account_id: "your-account-id",
+    //   route: "your-route",
+    // },
+  },
 });
