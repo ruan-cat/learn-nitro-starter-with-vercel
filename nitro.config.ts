@@ -13,7 +13,8 @@ export default defineNitroConfig({
    * @see https://nitro.build/deploy/providers/cloudflare#cloudflare-workers
    */
   cloudflare: {
-    deployConfig: false,
+    // deployConfig: false,
+    deployConfig: true,
     nodeCompat: true,
     wrangler: {
       name: "learn-nitro-starter-with-vercel",
