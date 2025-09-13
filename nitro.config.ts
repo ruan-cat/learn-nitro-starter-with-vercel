@@ -16,10 +16,10 @@ export default defineNitroConfig({
     // deployConfig: false,
     deployConfig: true,
     nodeCompat: true,
-    wrangler: {
-      name: "learn-nitro-starter-with-vercel",
-      // 失效
-      compatibility_date: "2025-09-13",
-    },
+    // wrangler: {
+    //   name: "learn-nitro-starter-with-vercel",
+    //   // 失效
+    //   compatibility_date: "2025-09-13",
+    // },
   },
 });
