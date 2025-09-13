@@ -7,4 +7,12 @@ export default defineNitroConfig({
   compatibilityDate: "latest",
   srcDir: "server",
   imports: false,
+
+  // 配置 cloudflare worker 部署
+  // cloudflare: {
+  //   wrangler: {
+  //     account_id: "your-account-id",
+  //     route: "your-route",
+  //   },
+  // },
 });
