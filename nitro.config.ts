@@ -15,9 +15,9 @@ export default defineNitroConfig({
   cloudflare: {
     deployConfig: false,
     nodeCompat: true,
-    // wrangler: {
-    //   account_id: "your-account-id",
-    //   route: "your-route",
-    // },
+    wrangler: {
+      name: "learn-nitro-starter-with-vercel",
+      compatibility_date: "2025-09-13",
+    },
   },
 });
