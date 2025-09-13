@@ -29,3 +29,8 @@ npm run dev
 ```bash
 pnpm dlx giget@latest nitro nitro-app --install
 ```
+
+## 导入到 cloudflare worker 内配置部署
+
+- 构建命令： `corepack use pnpm@latest && pnpm build:cloudflare`
+- 部署命令： `npx wrangler deploy .output/server/index.mjs --assets .output/public`
