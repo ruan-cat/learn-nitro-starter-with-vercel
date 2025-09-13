@@ -9,7 +9,7 @@
     "build:cloudflare": "nitro build --preset=cloudflare_module",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
-    "deploy:cloudflare": "npx wrangler --cwd .output deploy"
+    "deploy:cloudflare": "npx --no-install wrangler --cwd .output deploy"
   },
   "devDependencies": {
     "@ruan-cat/commitlint-config": "^2.1.1",
