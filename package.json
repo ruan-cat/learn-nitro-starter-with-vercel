@@ -9,7 +9,6 @@
     "build:cloudflare": "nitro build --preset=cloudflare_module",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
-    "deploy:cloudflare-1": "npx wrangler deploy .output/server/index.mjs --assets=.output/public --compatibility-date=2025-09-13",
     "deploy:cloudflare": "npx wrangler --cwd .output deploy"
   },
   "devDependencies": {

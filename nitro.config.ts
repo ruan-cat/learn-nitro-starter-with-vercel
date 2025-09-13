@@ -13,13 +13,7 @@ export default defineNitroConfig({
    * @see https://nitro.build/deploy/providers/cloudflare#cloudflare-workers
    */
   cloudflare: {
-    // deployConfig: false,
     deployConfig: true,
     nodeCompat: true,
-    // wrangler: {
-    //   name: "learn-nitro-starter-with-vercel",
-    //   // 失效
-    //   compatibility_date: "2025-09-13",
-    // },
   },
 });
