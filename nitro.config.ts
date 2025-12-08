@@ -1,12 +1,16 @@
-import { defineNitroConfig } from "nitropack/config";
+import { defineConfig } from "nitro";
 
 // https://nitro.build/config
-export default defineNitroConfig({
+export default defineConfig({
   // 不推荐 应该在 nitro 的 build 命令内指定 preset
   // preset: "vercel",
   compatibilityDate: "latest",
-  srcDir: "server",
+  serverDir: "server",
   imports: false,
+
+  devServer: {
+    port: 8080,
+  },
 
   /**
    * 配置 cloudflare worker 部署

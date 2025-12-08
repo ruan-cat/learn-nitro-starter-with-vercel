@@ -1,7 +1,11 @@
 {
   "name": "nitro-app",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.24.0",
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "scripts": {
     "up-taze": "pnpm up @ruan-cat/taze-config -L && npx taze -r",
     "dev": "nitro dev",
@@ -17,8 +21,8 @@
     "@ruan-cat/taze-config": "^1.0.0",
     "commitizen": "^4.3.1",
     "cz-git": "^1.12.0",
-    "h3": "^1.15.4",
-    "nitropack": "^2.12.9",
+    "nitro": "3.0.1-alpha.1",
+    "rolldown": "1.0.0-beta.53",
     "taze": "^19.9.2",
     "wrangler": "^4.53.0"
   }

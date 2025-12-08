@@ -2,6 +2,11 @@
 
 This directory is a brief example of [Nitro](https://nitro.build/) that can be deployed to Vercel with zero configuration. Go to the [nitro quick start](https://nitro.unjs.io/guide#quick-start) to learn more.
 
+## 环境要求
+
+- Node.js >= 20
+- 使用 Nitro v3（依赖包已从 `nitropack` 更名为 `nitro`）
+
 ## Deploy Your Own
 
 Deploy your own Nitro project with Vercel.
