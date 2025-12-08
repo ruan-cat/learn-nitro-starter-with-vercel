@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.16.0",
   "scripts": {
+    "up-taze": "pnpm up @ruan-cat/taze-config -L && npx taze -r",
     "dev": "nitro dev",
     "build": "pnpm build:vercel",
     "build:vercel": "nitro build --preset=vercel",
@@ -13,10 +14,12 @@
   },
   "devDependencies": {
     "@ruan-cat/commitlint-config": "^2.1.1",
+    "@ruan-cat/taze-config": "^1.0.0",
     "commitizen": "^4.3.1",
     "cz-git": "^1.12.0",
     "h3": "^1.15.4",
     "nitropack": "^2.12.4",
+    "taze": "^19.9.2",
     "wrangler": "^4.36.0"
   }
 }
