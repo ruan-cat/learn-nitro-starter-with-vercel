@@ -15,5 +15,9 @@ export default defineNitroConfig({
   cloudflare: {
     deployConfig: true,
     nodeCompat: true,
+    wrangler: {
+      // 设置 worker 名称
+      name: "learn-nitro-starter-with-vercel",
+    },
   },
 });
