@@ -6,11 +6,87 @@
 
 在我与你沟通并要求你具体实施更改时，难免会遇到很多模糊不清的事情。
 
-请你深度思考这些`遗漏点`，`缺漏点`，和`冲突相悖点`，**并主动的向我问询这些你不清楚的实施细节**。
+请你**深度思考**这些`遗漏点`，`缺漏点`，和`冲突相悖点`，**并主动的向我问询这些你不清楚的实施细节**。请主动使用 claude code 内置的 `AskUserQuestion` 工具，将你不清楚的内容设计成一些列问题，并询问我，向我索要细节，或着与我协作沟通。
 
-我会与你共同补充细化实现细节。我们先迭代出一轮完整完善的实施清单，然后再由你亲自落实实施下去。
+我会与你共同补充细化实现细节。我们会先迭代出一轮完整完善的实施清单，然后再由你亲自落实实施下去。
 
-## 2. 代码/编码格式要求
+## 2. 编写测试用例规范
+
+1. 请你使用 vitest 的 `import { test, describe } from "vitest";` 来编写。我希望测试用例格式为 describe 和 test。
+2. 测试用例的文件格式为 `*.test.ts` 。
+3. 测试用例的目录一般情况下为 `**/tests/` ，`**/src/tests/` 格式。
+4. 在对应 monorepo 的 tests 目录内，编写测试用例。如果你无法独立识别清楚到底在那个具体的 monorepo 子包内编写测试用例，请直接咨询我应该在那个目录下编写测试用例。
+
+## 3. 报告编写规范
+
+在大多数情况下，你的更改是**不需要**编写任何说明报告的。但是每当你需要编写报告时，请你首先遵循以下要求：
+
+- 报告地址： 默认在 `docs\reports` 文件夹内编写报告。
+- 报告文件格式： `*.md` 通常是 markdown 文件格式。
+- 报告文件名称命名要求：
+  1. 前缀以日期命名。包括年月日。日期格式 `YYYY-MM-DD` 。
+  2. 用小写英文加短横杠的方式命名。
+- 报告的一级标题： 必须是日期`YYYY-MM-DD`+报告名的格式。
+  - 好的例子： `2025-12-09 修复 @ruan-cat/commitlint-config 包的 negation pattern 处理错误` 。前缀包含有 `YYYY-MM-DD` 日期。
+  - 糟糕的例子： `构建与 fdir/Vite 事件复盘报告` 。前缀缺少 `YYYY-MM-DD` 日期。
+- 报告日志信息的代码块语言： 一律用 `log` 作为日志信息的代码块语言。如下例子：
+
+  ````markdown
+  日志如下：
+
+  ```log
+  日志信息……
+  ```
+  ````
+
+- 报告语言： 默认用简体中文。
+
+## 4. 生成发版日志的操作规范
+
+在你生成发版日志时，按照以下规范来完成：
+
+1. 新建文件： 运行命令 `pnpm dlx @changesets/cli add --empty` ，该命令会在 `.changeset` 目录下，新建一个空的 markdown 文件，这个文件就是你要写入的发版日志。
+2. 发版日志文件重命名： 这个命令会新建一个随机名称的发版日志文件，请你按照报告的规格，换成日期加语义化更新内容的名称。比如 `2025-12-15-add-pnpm-workspace-yaml.md` 就是有意义的命名。
+3. yaml 区域写入 changeset 规格的发版信息： 写入发版包名，和`发版标签`的等级。
+4. 写入更新日志： 在正文内编写更新日志。
+5. 编写更新日志正文的行文规范：
+   - 禁止使用任何等级的 markdown 标题： 编写任何`发版标签`的更新日志时，不允许使用任何等级的 markdown 标题，比如一级标题、二级标题等。这会影响自动合并的 `CHANGELOG.md` 文档的美观度。必须使用 markdown 的序号语法。
+   - major： 详细，清晰。说明清楚 major 版本的重大变更。
+   - minor： 用有序序号，简明扼要的说明清楚更新日志即可。
+   - patch： 用有序序号，简明扼要的说明清楚更新日志即可。
+
+## 5. 术语说明
+
+在我和你沟通时，我会使用以下术语，便于你理解。
+
+### 发版日志相关术语
+
+- `生成更新日志` ： 指的是在 `.changeset` 目录内，编写面向 changeset 的更新日志文件。其`发版标签`分为 `major` `minor` `patch` 这三个档次。如果我在要求你生成更新日志时，没有说明清楚`发版标签`具体发版到那个等级，请及时询问我。要求我给你说明清楚。
+- `生成发版日志` ： `生成更新日志` 的别名，是同一个意思。
+
+## 6. 沟通协作要求
+
+### `计划模式`
+
+在`计划模式`下，请你按照以下方式与我协作：
+
+1. 你不需要考虑任何向后兼容的设计，允许你做出破坏性的写法。请先设计一个合适的方案，和我沟通后再修改实施。
+2. 如果有疑惑，请询问我。
+3. 完成任务后，请告知我你做了那些破坏性变更。
+
+请注意，在绝大多数情况下，我不会要求你以这种 `计划模式` 来和我协作。
+
+## 7. 获取技术栈对应的上下文
+
+在处理特定技术栈相关的问题时，你应该主动获取对应的上下文文档和最佳实践。
+
+### claude code skill
+
+- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
+- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
+- 规范文档： https://agentskills.io/home
+
+## 8. 代码/编码格式要求
 
 ### 2.1. markdown 文档的 table 编写格式
 
@@ -136,31 +212,7 @@ export function successResponse<T>(data: T, message: string = "操作成功") {
 1. 主动添加**数字**序号，便于我阅读文档。
 2. 主动**维护正确的数字序号顺序**。如果你处理的 markdown 文档，其手动添加的序号顺序不对，请你及时的更新序号顺序。
 
-## 3. 报告编写规范
-
-在大多数情况下，你的更改是**不需要**编写任何说明报告的。但是每当你需要编写报告时，请你首先遵循以下要求：
-
-- 报告地址： 默认在 `docs\reports` 文件夹内编写报告。
-- 报告文件格式： `*.md` 通常是 markdown 文件格式。
-- 报告文件名称命名要求：
-  1. 前缀以日期命名。包括年月日。日期格式 `YYYY-MM-DD` 。
-  2. 用小写英文加短横杠的方式命名。
-- 报告的一级标题： 必须是日期`YYYY-MM-DD`+报告名的格式。
-  - 好的例子： `2025-12-09 修复 @ruan-cat/commitlint-config 包的 negation pattern 处理错误` 。前缀包含有 `YYYY-MM-DD` 日期。
-  - 糟糕的例子： `构建与 fdir/Vite 事件复盘报告` 。前缀缺少 `YYYY-MM-DD` 日期。
-- 报告日志信息的代码块语言： 一律用 `log` 作为日志信息的代码块语言。如下例子：
-
-  ````markdown
-  日志如下：
-
-  ```log
-  日志信息……
-  ```
-  ````
-
-- 报告语言： 默认用简体中文。
-
-## 4. <!-- https://github.com/GuDaStudio/geminimcp --> Core Instruction for Gemini MCP
+## 9. <!-- https://github.com/GuDaStudio/geminimcp --> Core Instruction for Gemini MCP
 
 在任何时刻，你必须思考当前过程可以如何与 gemini 进行协作，如何调用 gemini 为你提供的 MCP 工具作为你**客观全面分析**的保障。
 
@@ -175,7 +227,7 @@ export function successResponse<T>(data: T, message: string = "操作成功") {
 - **注意：** Gemini 十分擅长前端代码，并精通样式、UI 组件设计。在涉及前端代码时，你必须向其索要代码原型（CSS/React/Vue/HTML 等前端代码），任何时刻，你**必须以 gemini 的前端设计（原型代码）为最终的前端代码基点**。
 - 例如，当你识别到用户给出了前端设计需求，你的首要行为必须自动调整为，将用户需求原封不动转发给 gemini，并让其出具代码示例（此阶段严禁对用户需求进行任何改动、简写等等）。即你必须从 gemini 获取代码基点，才可以进行接下来的各种行为。
 
-## 5. <!-- https://github.com/GuDaStudio/geminimcp --> Gemini Tool Invocation Specification
+## 10. <!-- https://github.com/GuDaStudio/geminimcp --> Gemini Tool Invocation Specification
 
 1.  工具概述
 
@@ -194,7 +246,7 @@ gemini MCP 提供了一个工具 `gemini`，用于调用 Google Gemini 模型执
 - **任务规划**：生成 Step-by-step 的实施计划。
 - **前端原型**：编写 CSS、HTML、UI 组件代码，调整样式风格。
 
-## 6. 使用 `gemini MCP` 或直接使用 `gemini` 时需要额外主动获取上下文
+## 11. 使用 `gemini MCP` 或直接使用 `gemini` 时需要额外主动获取上下文
 
 1. 在使用 `gemini MCP` 或直接使用 `gemini` 时，由于传递信息的关系，gemini 是不会主动的先阅读来自 claude code 的配置文件的，因此你必须要告诉 gemini，并约束 gemini 的上下文读取行为，**必须要求**gemini 首先要无条件的阅读 claude code 的上下文。
 2. 请务必先主动阅读 `CLAUDE.md` 和 `.claude` 目录内的全部的指导文件。
@@ -203,19 +255,11 @@ gemini MCP 提供了一个工具 `gemini`，用于调用 Google Gemini 模型执
    - .claude\statusline.sh
 4. 你的修改必须按照这些 claude code 文档的要求和约束来做。特别是 `agents` 和 `skills` 的要求。
 
-## 7. 获取技术栈对应的上下文
-
-### 7.1. claude code skill
-
-- 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
-- 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
-- 规范文档： https://agentskills.io/home
-
-## 8. 其他注意事项
+## 12. 其他注意事项
 
 1. 报告输出地址： 你在生成 markdown 格式的报告时，请默认输出到 `docs\reports` 目录下面，这便于我阅读。
 
-## 9. 项目概述
+## 13. 项目概述
 
 这是一个 Nitro v3 入门项目，设计用于部署到 Vercel 或 Cloudflare Workers。Nitro 是一个用于构建 Web 服务器和 API 的通用服务器框架。
 
@@ -225,7 +269,7 @@ gemini MCP 提供了一个工具 `gemini`，用于调用 Google Gemini 模型执
 
 **包管理器：** pnpm 10.24.0（通过 Corepack 管理）
 
-## 10. 开发命令
+## 14. 开发命令
 
 ### 10.1. 启动开发服务器
 
@@ -274,7 +318,7 @@ pnpm up-taze
 # 更新 @ruan-cat/taze-config 并运行 taze 检查依赖更新
 ```
 
-## 11. 架构设计
+## 15. 架构设计
 
 ### 11.1. 基于文件的路由
 
@@ -322,7 +366,7 @@ export default eventHandler((event) => {
 - `.output/server/` - 服务器打包文件
 - `.output/public/` - 静态资源
 
-## 12. TypeScript 配置
+## 16. TypeScript 配置
 
 - 扩展 `.nitro/types/tsconfig.json`（由 `pnpm prepare` 生成）
 - 启用严格模式和额外的安全检查
@@ -330,7 +374,7 @@ export default eventHandler((event) => {
 - 目标：ESNext
 - JSX 支持配置（工厂函数：`h`，片段：`Fragment`）
 
-## 13. 部署方式
+## 17. 部署方式
 
 ### 13.1. Vercel
 
@@ -345,14 +389,14 @@ export default eventHandler((event) => {
 - 配置了 Node.js 兼容性（`nodeCompat: true`）
 - 使用 wrangler 从 `.output/` 目录部署
 
-## 14. 开发工具
+## 18. 开发工具
 
 - **commitlint** - 使用 `@ruan-cat/commitlint-config` 进行提交信息校验
 - **commitizen/cz-git** - 交互式提交工具（通过 `.czrc` 配置）
 - **taze** - 使用 `@ruan-cat/taze-config` 进行依赖更新检查
 - **rolldown** - 构建工具（测试版）
 
-## 15. 学习目标（来自 README）
+## 19. 学习目标（来自 README）
 
 本项目作为学习环境，用于学习：
 
