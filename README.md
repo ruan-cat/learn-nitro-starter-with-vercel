@@ -2,9 +2,12 @@
 
 This directory is a brief example of [Nitro](https://nitro.build/) that can be deployed to Vercel with zero configuration. Go to the [nitro quick start](https://nitro.unjs.io/guide#quick-start) to learn more.
 
-## 项目已经封存
+## 学习加载更多新的东西
 
-因为已经学会 nitro 了，不需要持续维护该仓库了。
+我已经学会 nitro V3 版本如何组织正式有效的接口了。接下来需要使用该仓库学习更多和全栈相关的知识。
+
+- neon 数据库
+- drizzle ORM
 
 ## 环境要求
 
