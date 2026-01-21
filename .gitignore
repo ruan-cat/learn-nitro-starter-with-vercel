@@ -9,3 +9,5 @@ dist
 .wrangler
 
 pnpm-lock.yaml
+
+.env*.local
