@@ -22,3 +22,18 @@
 其他内容：
 
 1. 我的 neon 数据库是在 vercel 连接的。
+
+## 001 模仿参考 nuxt 的初始化教程，制作获取数据库版本的 api
+
+阅读以下 url 链接图片：
+
+![2026-01-21-23-21-30](https://s2.loli.net/2026/01/21/ZY38trM1ygboQxF.png)
+
+![2026-01-21-23-21-47](https://s2.loli.net/2026/01/21/yWGbrYP1ms6qXSQ.png)
+
+![2026-01-21-23-22-05](https://s2.loli.net/2026/01/21/Upo3m9nKLcRf5zA.png)
+
+1. 编写合适的 `package.json` 命令，从 vercel 内拉取环境变量。
+2. 在 `README.md` 内补充命令使用说明和对应 cli 官方文档参考链接。
+3. 确保 `server\db\index.ts` 可以从正确的位置获取环境变量。
+4. 我们项目毕竟不是 nuxt，请你在 index.html 内编写合适代码，请求接口、并显示数据库版本信息。
