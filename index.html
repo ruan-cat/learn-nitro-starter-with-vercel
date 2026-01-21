@@ -71,6 +71,55 @@
         color: white;
         margin: 0;
       }
+      .db-info {
+        background: rgba(0, 200, 100, 0.1);
+        border: 1px solid rgba(0, 200, 100, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: left;
+      }
+      .db-info h2 {
+        font-size: 1rem;
+        color: #00c864;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .db-info .version {
+        font-size: 0.875rem;
+        color: #aaa;
+        word-break: break-all;
+        line-height: 1.6;
+      }
+      .db-info .loading {
+        color: #888;
+        font-style: italic;
+      }
+      .db-info .error {
+        color: #ff6b6b;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .status-dot.success {
+        background: #00c864;
+      }
+      .status-dot.error {
+        background: #ff6b6b;
+      }
+      .status-dot.loading {
+        background: #888;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
     </style>
   </head>
   <body>
@@ -78,6 +127,18 @@
       <img src="https://nitro.build/icon.svg" alt="Nitro logo" class="logo" />
       <h1>Welcome to Nitro</h1>
       <p>A fast, lightweight server framework running on Vercel</p>
+
+      <!-- 数据库版本信息区域 -->
+      <div class="db-info">
+        <h2>
+          <span class="status-dot loading" id="statusDot"></span>
+          <span>Neon PostgreSQL</span>
+        </h2>
+        <div class="version" id="dbVersion">
+          <span class="loading">正在获取数据库版本...</span>
+        </div>
+      </div>
+
       <div class="features">
         <div class="feature">
           <a
@@ -97,5 +158,34 @@
         </div>
       </div>
     </div>
+
+    <script>
+      /**
+       * 获取并显示数据库版本信息
+       */
+      async function fetchDbVersion() {
+        const versionEl = document.getElementById('dbVersion');
+        const statusDot = document.getElementById('statusDot');
+
+        try {
+          const response = await fetch('/db-version');
+          const data = await response.json();
+
+          if (data.success) {
+            versionEl.innerHTML = data.version;
+            statusDot.className = 'status-dot success';
+          } else {
+            versionEl.innerHTML = `<span class="error">❌ ${data.message}: ${data.error}</span>`;
+            statusDot.className = 'status-dot error';
+          }
+        } catch (error) {
+          versionEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+          statusDot.className = 'status-dot error';
+        }
+      }
+
+      // 页面加载时获取数据库版本
+      document.addEventListener('DOMContentLoaded', fetchDbVersion);
+    </script>
   </body>
 </html>

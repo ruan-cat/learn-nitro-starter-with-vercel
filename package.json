@@ -8,6 +8,7 @@
   },
   "scripts": {
     "up-taze": "pnpm up @ruan-cat/taze-config -L && npx taze -r",
+    "env:pull": "vercel env pull .env",
     "dev": "nitro dev",
     "build": "pnpm build:vercel",
     "build:vercel": "nitro build --preset=vercel",

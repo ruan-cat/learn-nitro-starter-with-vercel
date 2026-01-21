@@ -60,13 +60,39 @@ pnpm dlx giget@latest nitro nitro-app --install
 |     `pnpm prepare`      |      生成 Nitro TypeScript 类型（`.nitro/`）       |
 |     `pnpm preview`      |           预览生产构建（从 `.output/`）            |
 
-### 2. 部署命令
+### 2. 环境变量命令
+
+|      命令       |                          说明                          |
+| :-------------: | :----------------------------------------------------: |
+| `pnpm env:pull` | 从 Vercel 拉取环境变量到本地 `.env` 文件（需先登录）   |
+
+#### 2.1. 使用场景
+
+**场景：首次克隆项目后获取环境变量**
+
+```bash
+# 1. 安装 Vercel CLI（如未安装）
+pnpm add -g vercel
+
+# 2. 登录 Vercel
+vercel login
+
+# 3. 链接项目（如未链接）
+vercel link
+
+# 4. 拉取环境变量
+pnpm env:pull
+```
+
+> 注意：`vercel env pull` 会将 Vercel 项目中配置的环境变量下载到本地 `.env` 文件，包括 `DATABASE_URL` 等敏感信息。
+
+### 3. 部署命令
 
 |           命令           |              说明               |
 | :----------------------: | :-----------------------------: |
 | `pnpm deploy:cloudflare` | 使用 wrangler 部署到 Cloudflare |
 
-### 3. 数据库命令（Drizzle Kit）
+### 4. 数据库命令（Drizzle Kit）
 
 Drizzle Kit 是 Drizzle ORM 的 CLI 工具，用于管理数据库迁移和 Schema。
 
@@ -78,7 +104,7 @@ Drizzle Kit 是 Drizzle ORM 的 CLI 工具，用于管理数据库迁移和 Sche
 |  `pnpm db:studio`  |          启动 Drizzle Studio 可视化界面管理数据库          |
 |   `pnpm db:drop`   |                   删除最近生成的迁移文件                   |
 
-#### 3.1. 命令使用场景
+#### 4.1. 命令使用场景
 
 **场景一：首次初始化数据库**
 
@@ -121,7 +147,7 @@ pnpm db:studio
 # 浏览器访问 https://local.drizzle.studio
 ```
 
-### 4. 工具命令
+### 5. 工具命令
 
 |      命令      |               说明               |
 | :------------: | :------------------------------: |
@@ -156,6 +182,8 @@ pnpm db:studio
 
 - Vercel + Nitro 部署：https://vercel.com/docs/frameworks/backend/nitro
 - Vercel 环境变量：https://vercel.com/docs/projects/environment-variables
+- Vercel CLI：https://vercel.com/docs/cli
+- Vercel CLI env pull：https://vercel.com/docs/cli/env
 
 ### Cloudflare
 
