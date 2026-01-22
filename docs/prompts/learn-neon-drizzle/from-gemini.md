@@ -12,7 +12,8 @@
 
 ```bash
 # 核心依赖：ORM 库和 Neon 的 Serverless 驱动
-pnpm add drizzle-orm @neondatabase/serverless dotenv
+pnpm add drizzle-orm @neondatabase/serverless
+pnpm add -D @dotenvx/dotenvx
 
 # 开发依赖：Drizzle 的命令行工具（用于生成迁移文件）
 pnpm add -D drizzle-kit
@@ -47,7 +48,8 @@ DATABASE_URL='你的_neon_连接_字符串'
 ```typescript
 // drizzle.config.ts
 import { defineConfig } from "drizzle-kit";
-import "dotenv/config";
+import { config } from "@dotenvx/dotenvx";
+config({ path: ".env" });
 
 export default defineConfig({
   schema: "./server/database/schema.ts", // 指定 Schema 文件位置
