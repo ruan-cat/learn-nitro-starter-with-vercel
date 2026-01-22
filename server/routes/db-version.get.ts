@@ -15,19 +15,19 @@ import { sql } from "drizzle-orm";
  * }
  */
 export default eventHandler(async () => {
-  try {
-    const result = await db.execute(sql`SELECT version()`);
-    const version = result.rows[0]?.version as string;
+	try {
+		const result = await db.execute(sql`SELECT version()`);
+		const version = result.rows[0]?.version as string;
 
-    return {
-      success: true,
-      version,
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: "获取数据库版本失败",
-      error: error instanceof Error ? error.message : "未知错误",
-    };
-  }
+		return {
+			success: true,
+			version,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			message: "获取数据库版本失败",
+			error: error instanceof Error ? error.message : "未知错误",
+		};
+	}
 });

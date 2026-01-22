@@ -52,12 +52,12 @@ import { config } from "@dotenvx/dotenvx";
 config({ path: ".env" });
 
 export default defineConfig({
-  schema: "./server/database/schema.ts", // 指定 Schema 文件位置
-  out: "./server/database/migrations", // 指定迁移文件输出位置
-  dialect: "postgresql", // 数据库类型
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
+	schema: "./server/database/schema.ts", // 指定 Schema 文件位置
+	out: "./server/database/migrations", // 指定迁移文件输出位置
+	dialect: "postgresql", // 数据库类型
+	dbCredentials: {
+		url: process.env.DATABASE_URL!,
+	},
 });
 ```
 
@@ -73,20 +73,20 @@ import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 
 // 定义一张名为 'users' 的表
 export const users = pgTable("users", {
-  // serial: 自增主键
-  id: serial("id").primaryKey(),
+	// serial: 自增主键
+	id: serial("id").primaryKey(),
 
-  // text: 文本类型，notNull 表示必填
-  name: text("name").notNull(),
+	// text: 文本类型，notNull 表示必填
+	name: text("name").notNull(),
 
-  // email: 文本类型，必须唯一
-  email: text("email").notNull().unique(),
+	// email: 文本类型，必须唯一
+	email: text("email").notNull().unique(),
 
-  // integer: 整数类型
-  age: integer("age"),
+	// integer: 整数类型
+	age: integer("age"),
 
-  // timestamp: 时间戳，默认当前时间
-  createdAt: timestamp("created_at").defaultNow(),
+	// timestamp: 时间戳，默认当前时间
+	createdAt: timestamp("created_at").defaultNow(),
 });
 ```
 
@@ -146,12 +146,12 @@ import { db } from "../database/db"; // 导入我们创建的 db 实例
 import { users } from "../database/schema"; // 导入表定义
 
 export default eventHandler(async (event) => {
-  // 使用 Drizzle 查询所有用户
-  const allUsers = await db.select().from(users);
+	// 使用 Drizzle 查询所有用户
+	const allUsers = await db.select().from(users);
 
-  return {
-    users: allUsers,
-  };
+	return {
+		users: allUsers,
+	};
 });
 ```
 
@@ -167,14 +167,14 @@ export default eventHandler(async (event) => {
 ```typescript
 // 示例：事务回滚
 await db.transaction(async (tx) => {
-  // 1. 创建用户
-  await tx.insert(users).values({ name: "Ruan", email: "ruan@example.com" });
+	// 1. 创建用户
+	await tx.insert(users).values({ name: "Ruan", email: "ruan@example.com" });
 
-  // 2. 模拟一个错误
-  if (somethingWrong) {
-    // 抛出错误会自动触发回滚，上面的插入操作会被撤销，仿佛从未发生过
-    throw new Error("邮件发送失败，回滚！");
-  }
+	// 2. 模拟一个错误
+	if (somethingWrong) {
+		// 抛出错误会自动触发回滚，上面的插入操作会被撤销，仿佛从未发生过
+		throw new Error("邮件发送失败，回滚！");
+	}
 });
 ```
 

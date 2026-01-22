@@ -132,9 +132,9 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 ```html
 <wd-popup v-model="showModal">
-  <wd-cell-group>
-    <!-- 内容 -->
-  </wd-cell-group>
+	<wd-cell-group>
+		<!-- 内容 -->
+	</wd-cell-group>
 </wd-popup>
 ```
 
@@ -142,11 +142,11 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 ```vue
 <template>
-  <wd-popup v-model="showModal">
-    <wd-cell-group>
-      <!-- 内容 -->
-    </wd-cell-group>
-  </wd-popup>
+	<wd-popup v-model="showModal">
+		<wd-cell-group>
+			<!-- 内容 -->
+		</wd-cell-group>
+	</wd-popup>
 </template>
 ```
 
@@ -159,13 +159,13 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 ```ts
 // 模拟成功响应
 export function successResponse<T>(data: T, message: string = "操作成功") {
-  return {
-    success: true,
-    code: ResultEnum.Success,
-    message,
-    data,
-    timestamp: Date.now(),
-  };
+	return {
+		success: true,
+		code: ResultEnum.Success,
+		message,
+		data,
+		timestamp: Date.now(),
+	};
 }
 ```
 
@@ -174,13 +174,13 @@ export function successResponse<T>(data: T, message: string = "操作成功") {
 ```ts
 /** 模拟成功响应 */
 export function successResponse<T>(data: T, message: string = "操作成功") {
-  return {
-    success: true,
-    code: ResultEnum.Success,
-    message,
-    data,
-    timestamp: Date.now(),
-  };
+	return {
+		success: true,
+		code: ResultEnum.Success,
+		message,
+		data,
+		timestamp: Date.now(),
+	};
 }
 ```
 
@@ -351,7 +351,7 @@ Nitro 在 `server/` 目录中使用基于文件的路由：
 
 ### 11.2. 服务端目录结构
 
-```
+```plain
 server/
 └── routes/           # API 路由（基于文件的路由）
     └── *.{method}.ts # 按 HTTP 方法命名的路由文件
@@ -375,9 +375,9 @@ server/
 import { eventHandler } from "nitro/h3";
 
 export default eventHandler((event) => {
-  return {
-    /* 响应数据 */
-  };
+	return {
+		/* 响应数据 */
+	};
 });
 ```
 

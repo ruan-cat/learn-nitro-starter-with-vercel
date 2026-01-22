@@ -1,42 +1,48 @@
 {
-  "name": "nitro-app",
-  "private": true,
-  "type": "module",
-  "packageManager": "pnpm@10.28.1",
-  "engines": {
-    "node": ">=22.14.0"
-  },
-  "scripts": {
-    "up-taze": "pnpm up @ruan-cat/taze-config -L && npx taze -r",
-    "env:pull": "vercel env pull .env",
-    "dev": "nitro dev",
-    "build": "pnpm build:vercel",
-    "build:vercel": "nitro build --preset=vercel",
-    "build:cloudflare": "nitro build --preset=cloudflare_module",
-    "prepare": "nitro prepare",
-    "preview": "node .output/server/index.mjs",
-    "deploy:cloudflare": "npx --no-install wrangler --cwd .output deploy",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:drop": "drizzle-kit drop",
-    "db:seed": "npx tsx server/db/seed.ts"
-  },
-  "dependencies": {
-    "@neondatabase/serverless": "^0.10.4",
-    "drizzle-orm": "^0.38.4"
-  },
-  "devDependencies": {
-    "@dotenvx/dotenvx": "^1.51.4",
-    "@ruan-cat/commitlint-config": "^4.9.1",
-    "@ruan-cat/taze-config": "^1.0.2",
-    "commitizen": "^4.3.1",
-    "cz-git": "^1.12.0",
-    "drizzle-kit": "^0.30.6",
-    "nitro": "3.0.1-alpha.1",
-    "rolldown": "1.0.0-beta.53",
-    "taze": "^19.9.2",
-    "wrangler": "^4.59.3"
-  }
+	"name": "nitro-app",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@10.28.1",
+	"engines": {
+		"node": ">=22.14.0"
+	},
+	"scripts": {
+		"up-taze": "pnpm up @ruan-cat/taze-config -L && npx taze -r",
+		"env:pull": "vercel env pull .env",
+		"dev": "nitro dev",
+		"build": "pnpm build:vercel",
+		"build:vercel": "nitro build --preset=vercel",
+		"build:cloudflare": "nitro build --preset=cloudflare_module",
+		"prepare": "nitro prepare && simple-git-hooks",
+		"preview": "node .output/server/index.mjs",
+		"deploy:cloudflare": "npx --no-install wrangler --cwd .output deploy",
+		"format": "prettier --experimental-cli --write .",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio",
+		"db:drop": "drizzle-kit drop",
+		"db:seed": "npx tsx server/db/seed.ts"
+	},
+	"dependencies": {
+		"@neondatabase/serverless": "^0.10.4",
+		"drizzle-orm": "^0.38.4"
+	},
+	"devDependencies": {
+		"@dotenvx/dotenvx": "^1.51.4",
+		"@prettier/plugin-oxc": "^0.1.3",
+		"@ruan-cat/commitlint-config": "^4.9.1",
+		"@ruan-cat/taze-config": "^1.0.2",
+		"commitizen": "^4.3.1",
+		"cz-git": "^1.12.0",
+		"drizzle-kit": "^0.30.6",
+		"lint-staged": "^16.2.7",
+		"nitro": "3.0.1-alpha.1",
+		"prettier": "^3.8.1",
+		"prettier-plugin-lint-md": "^1.0.1",
+		"rolldown": "1.0.0-beta.53",
+		"simple-git-hooks": "^2.13.1",
+		"taze": "^19.9.2",
+		"wrangler": "^4.59.3"
+	}
 }

@@ -24,7 +24,7 @@ Neon 是一个 **Serverless PostgreSQL** 云数据库服务，特点：
 
 ### 1.3. 三者关系图解
 
-```
+```plain
 ┌─────────────────────────────────────────────────────────────┐
 │                        你的代码                              │
 ├─────────────────────────────────────────────────────────────┤
@@ -51,7 +51,7 @@ Neon 是一个 **Serverless PostgreSQL** 云数据库服务，特点：
 
 ## 2. 项目文件结构
 
-```
+```plain
 项目根目录/
 ├── .env                    # 环境变量（包含数据库连接字符串）
 ├── .env.example            # 环境变量示例
@@ -72,12 +72,12 @@ Neon 是一个 **Serverless PostgreSQL** 云数据库服务，特点：
 import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
-  // 字段名: 字段类型("数据库列名").约束()
-  id: serial("id").primaryKey(), // 自增主键
-  name: text("name").notNull(), // 非空文本
-  email: text("email").notNull().unique(), // 非空 + 唯一
-  age: integer("age"), // 可空整数
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+	// 字段名: 字段类型("数据库列名").约束()
+	id: serial("id").primaryKey(), // 自增主键
+	name: text("name").notNull(), // 非空文本
+	email: text("email").notNull().unique(), // 非空 + 唯一
+	age: integer("age"), // 可空整数
+	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 ```
 
@@ -161,8 +161,8 @@ pnpm db:drop
 
 ```typescript
 export const usersTable = pgTable("users", {
-  // ... 现有字段
-  phone: text("phone"), // 新增字段
+	// ... 现有字段
+	phone: text("phone"), // 新增字段
 });
 ```
 
@@ -238,10 +238,7 @@ const user = await db.select().from(usersTable).where(eq(usersTable.id, 1));
 ### 7.2. 插入数据
 
 ```typescript
-const newUser = await db
-  .insert(usersTable)
-  .values({ name: "张三", email: "zhang@example.com" })
-  .returning();
+const newUser = await db.insert(usersTable).values({ name: "张三", email: "zhang@example.com" }).returning();
 ```
 
 ### 7.3. 更新数据
@@ -277,7 +274,7 @@ await db.delete(usersTable).where(eq(usersTable.id, 1));
 
 检查 `.env` 中的 `DATABASE_URL` 是否正确，格式应为：
 
-```
+```plain
 postgresql://username:password@host.neon.tech/database?sslmode=require
 ```
 

@@ -10,14 +10,14 @@ import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
  * - timestamp: 时间戳字段
  */
 export const usersTable = pgTable("users", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull().unique(),
-  age: integer("age"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .$onUpdate(() => new Date()),
+	id: serial("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull().unique(),
+	age: integer("age"),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.$onUpdate(() => new Date()),
 });
 
 /**
@@ -26,16 +26,16 @@ export const usersTable = pgTable("users", {
  * 演示表之间的关联关系（外键）
  */
 export const postsTable = pgTable("posts", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .$onUpdate(() => new Date()),
+	id: serial("id").primaryKey(),
+	title: text("title").notNull(),
+	content: text("content").notNull(),
+	userId: integer("user_id")
+		.notNull()
+		.references(() => usersTable.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.$onUpdate(() => new Date()),
 });
 
 /** 用户表插入类型 */

@@ -9,9 +9,9 @@ import { eq } from "drizzle-orm";
  * 返回所有用户列表
  */
 export default eventHandler(async () => {
-  const users = await db.select().from(usersTable);
-  return {
-    success: true,
-    data: users,
-  };
+	const users = await db.select().from(usersTable);
+	return {
+		success: true,
+		data: users,
+	};
 });
