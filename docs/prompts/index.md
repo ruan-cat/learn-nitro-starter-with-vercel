@@ -25,12 +25,36 @@
 - prettier-plugin-lint-md
 - lint-staged
 - simple-git-hooks
+- commitlint
 
 我需要你帮我在本项目内，初始化基于 `lint-staged` + `simple-git-hooks` + `prettier` 的 git 提交后触发格式化的流程。
 
+你必须帮我做到以下内容：
+
+1. 封装有意义的 `lint-staged.config.js` 文件。
+2. 封装独立的 `prettier` 格式化命令。
+   - 必须使用 `--experimental-cli` 参数来格式化代码
+3. 封装 `prettier.config.mjs` 配置。按照上述仓库所体现的固定配置来编写固定格式的配置。
+4. 封装 `simple-git-hooks.mjs` 配置。按照上述仓库所体现的固定配置来编写固定格式的配置。
+
 ### 01 总结经验，整理成一份可以任意初始化任何 node 项目的 claude code skills 技能，便于复用该能力
 
-关于 claude code skill 的知识点：
+封装技能的内容要求：
+
+1. 要说明清楚必须要安装的 node 依赖有哪一些。并统一安装为 `devDependencies` 。
+2. 说明清楚必须要初始化、新建、或迭代修改的配置文件有哪一些。
+3. 说明清楚 package.json 内要新增的命令有哪些。
+4. 提供自检清单，检查一揽子初始化配置是否完成了。
+
+封装技能的文件管理要求：
+
+1. 会涉及到很多固定格式的配置项模板，涉及到的模板，请存放在对应技能目录的 `templates` 目录下面。
+
+封装技能的格式要求：
+
+1. 要能够使用命令的形式来主动触发。使用命令的形式主动触发技能。补全相关的 yaml 配置。
+
+关于编写 claude code skill 的知识点如下，务必确保你充分阅读了 claude code skills 的编写格式：
 
 - 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
 - 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
