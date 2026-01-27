@@ -285,7 +285,7 @@ gemini MCP 提供了一个工具 `gemini`，用于调用 Google Gemini 模型执
 
 本项目使用 Nitro v3 框架编写服务端接口。详细的开发规范请参阅：
 
-**技能文件**：[.claude/skills/use-nitro.md](.claude/skills/use-nitro.md)
+**技能文件**：[.claude/skills/use-nitro/SKILL.md](.claude/skills/use-nitro/SKILL.md)
 
 该技能文件包含：
 
