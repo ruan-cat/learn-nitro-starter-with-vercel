@@ -65,3 +65,12 @@
 请你深度阅读 `.claude\skills\nitro-api-development` 目录内的技能。对比本项目这个比较全新的，干净的 nitro 场景，将特化的，专门的 nitro 做法找出来。并想办法改造成一个通用的，面向从零开始项目的，skills 技能文档。
 
 将你找到的特化项，专用项，全部找出来，并用 claude code 询问的交互式询问工具询问我，那些相互需要我审核并删除。
+
+## 004 ccs 在 window 系统内出现严重故障
+
+我选择方案 1，编写一个 ccs issue，请求对方更改代码。使用 window 系统，适配 window 系统。请你在 docs/issue 目录内编写 issue 草稿，由于对方是以英语为母语的用户，所以我需要你同时编写两份语言的 issue 稿
+
+一份是全中文的，给我看
+另一份是全英文的，给维护者看。
+
+务必要说明清楚故障的前因后果。说明清楚我在 window 系统内，使用 pnpm 全局安装的 gemini 包可以正常使用，但是在 `lib\hooks\websearch-transformer.cjs` 这个脚本内 isCliAvailable 函数能完成脚本识别，但是执行时 spawnSync 却出现了兼容性故障。故需要改造。
