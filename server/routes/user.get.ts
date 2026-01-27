@@ -1,10 +1,13 @@
-import { eventHandler } from "nitro/h3";
+/**
+ * @file 示例用户接口
+ * @description Example user API
+ * GET /user
+ */
 
-// Learn more: https://nitro.build/guide/routing
-export default eventHandler((event) => {
-	return {
-		name: "John Doe",
-		age: 20,
-		email: "john.doe@example.com",
-	};
-});
+import { defineSimpleHandler } from "../utils/api";
+
+export default defineSimpleHandler(() => ({
+	name: "John Doe",
+	age: 20,
+	email: "john.doe@example.com",
+}));

@@ -1,34 +1,32 @@
-import { eventHandler, readBody } from "nitro/h3";
+/**
+ * @file 创建用户接口
+ * @description Create user API
+ * POST /users
+ */
+
+import { readBody } from "nitro/h3";
+import { defineApiHandler, badRequest } from "../utils/api";
 import { db, usersTable } from "../db";
 import type { InsertUser } from "../db";
 
-/**
- * 创建用户 API
- *
- * POST /api/users
- * 请求体: { name: string, email: string, age?: number }
- */
-export default eventHandler(async (event) => {
-	const body = await readBody<InsertUser>(event);
+export default defineApiHandler(
+	async (event) => {
+		const body = await readBody<InsertUser>(event);
 
-	if (!body.name || !body.email) {
-		return {
-			success: false,
-			error: "name 和 email 是必填字段",
-		};
-	}
+		if (!body.name || !body.email) {
+			throw badRequest("name 和 email 是必填字段");
+		}
 
-	const newUser = await db
-		.insert(usersTable)
-		.values({
-			name: body.name,
-			email: body.email,
-			age: body.age,
-		})
-		.returning();
+		const [newUser] = await db
+			.insert(usersTable)
+			.values({
+				name: body.name,
+				email: body.email,
+				age: body.age,
+			})
+			.returning();
 
-	return {
-		success: true,
-		data: newUser[0],
-	};
-});
+		return newUser;
+	},
+	{ successMessage: "创建成功", errorMessage: "创建用户失败" },
+);
