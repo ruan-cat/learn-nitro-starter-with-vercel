@@ -1,0 +1,157 @@
+--- a/lib/hooks/websearch-transformer.cjs (CCS 官方版本)
++++ b/lib/hooks/websearch-transformer.cjs (本地修改版本)
+@@
+ # WebSearch Transformer 修改补丁
+ #
+ # 官方版本: https://github.com/kaitranntt/ccs/blob/main/lib/hooks/websearch-transformer.cjs
+ # 本地版本: C:\Users\pc\.ccs\hooks\websearch-transformer.cjs
+ #
+ # 修改目的: 兼容新版 Gemini CLI 并修复 Windows 平台问题
+ # 修改日期: 2025-01-28
+@@
+
+================================================================================
+修改 1: 增加超时时间 (第 115 行)
+================================================================================
+
+--- 原版
++++ 修改后
+@@ -115 +115 @@
+-const DEFAULT_TIMEOUT_SEC = 55;
++const DEFAULT_TIMEOUT_SEC = 120;
+
+说明: Gemini CLI 执行网络搜索需要更长时间，55秒经常超时
+
+================================================================================
+修改 2: tryGeminiSearch 函数 - 调试日志 (第 295-298 行)
+================================================================================
+
+--- 原版
++++ 修改后
+@@ -295,4 +295,4 @@
+     if (process.env.CCS_DEBUG) {
+-      console.error(`[CCS Hook] Executing: gemini --model ${model} --yolo -p "..."`);
++      console.error(
++        `[CCS Hook] Executing: echo "..." | gemini --model ${model} --output-format text`
++      );
+     }
+
+说明: 反映实际执行的命令格式
+
+================================================================================
+修改 3: tryGeminiSearch 函数 - spawnSync 调用 (第 301-312 行)
+================================================================================
+
+--- 原版
++++ 修改后
+@@ -301,10 +301,13 @@
+     const spawnResult = spawnSync(
+       'gemini',
+-      ['--model', model, '--yolo', '-p', prompt],
++      ['--model', model, '--output-format', 'text'],
+       {
+         encoding: 'utf8',
+         timeout: timeoutMs,
+         maxBuffer: 1024 * 1024 * 2,
+         stdio: ['pipe', 'pipe', 'pipe'],
++        input: prompt,
++        shell: process.platform === 'win32',
++        cwd: process.env.HOME || process.env.USERPROFILE || '/tmp',
+       }
+     );
+
+说明:
+  - 移除 '--yolo': 搜索场景不需要自动批准工具调用
+  - 移除 '-p': Gemini CLI 新版废弃了 -p 标志
+  - 添加 '--output-format text': 使输出更简洁
+  - 添加 'input: prompt': 通过 stdin 传递多行 prompt，避免 Windows shell 解析问题
+  - 添加 'shell: true': Windows 平台需要通过 shell 执行
+  - 添加 'cwd': 避免 Gemini CLI 扫描当前项目目录
+
+================================================================================
+修改 4: outputSuccess 函数 - 输出格式 (第 511-537 行)
+================================================================================
+
+--- 原版
++++ 修改后
+@@ -511,27 +511,27 @@
+ /**
+  * Output success response and exit
+  *
+- * Key insight from Claude Code docs:
+- * - permissionDecisionReason (with deny) → shown to CLAUDE (AI reads this)
+- * - systemMessage → shown to USER only (nice styling but AI doesn't see)
++ * Strategy: Use permissionDecision: "allow" with additionalContext
++ * This allows the tool call but provides context to Claude.
++ * However, since we're replacing WebSearch, we use "deny" + reason.
+  *
+- * So we MUST put results in permissionDecisionReason for Claude to use them.
+- * systemMessage provides the nice UI for the user.
++ * Note: "blocking error" message may still appear in CLI due to
++ * how Claude Code handles any denial, but the search results
++ * are successfully passed to Claude.
+  */
+ function outputSuccess(query, content, providerName) {
+   const formattedResults = formatSearchResults(query, content, providerName);
+
++  // Try using continue: false with the results as context
+   const output = {
+-    decision: 'block',
+-    reason: `WebSearch completed via ${providerName}`,
+-    // Nice message for user (shows as "says:" - info style)
+-    systemMessage: `[WebSearch via ${providerName}] Results retrieved successfully. See below.`,
++    continue: true,
+     hookSpecificOutput: {
+       hookEventName: 'PreToolUse',
+       permissionDecision: 'deny',
+-      // Full results here - Claude reads this
+       permissionDecisionReason: formattedResults,
+     },
+   };
+
+   console.log(JSON.stringify(output));
+-  process.exit(2);
++  process.exit(0);
+ }
+
+说明:
+  - 移除 'decision: block' 和 'reason': 简化输出结构
+  - 移除 'systemMessage': 用户端显示依赖 CLI 内部处理
+  - 添加 'continue: true': 尝试改善 UI 显示（实际效果有限）
+  - 改 exit(2) 为 exit(0): 尝试避免显示为 "blocking error"（实际仍会显示）
+
+================================================================================
+修改汇总
+================================================================================
+
+| 修改项 | 原版 | 修改后 | 原因 |
+|--------|------|--------|------|
+| DEFAULT_TIMEOUT_SEC | 55 | 120 | 超时时间不足 |
+| gemini 参数 | --yolo -p prompt | --output-format text | -p 标志已废弃 |
+| prompt 传递 | 命令行参数 | stdin (input) | 多行文本解析问题 |
+| shell 选项 | 无 | process.platform === 'win32' | Windows 兼容 |
+| cwd 选项 | 无 | HOME/USERPROFILE | 避免扫描项目目录 |
+| exit code | exit(2) | exit(0) | 尝试改善 UI 显示 |
+
+================================================================================
+额外配置修改 (非本文件)
+================================================================================
+
+文件: C:\Users\pc\.gemini\settings.json
+
+--- 原值
++++ 修改后
+@@ security.auth.selectedType
+-"gemini-api-key"
++"oauth-personal"
+
+说明: 用户已完成 OAuth 认证，但配置错误地指定 API Key 模式
+
+================================================================================
+已知限制
+================================================================================
+
+即使使用 exit(0) 和正确的 JSON 格式，Claude Code CLI 仍会显示 "blocking error"。
+这是 Claude Code 的设计限制：任何 permissionDecision: "deny" 都会显示为 error。
+功能正常工作，只是 UI 显示不友好。
+
