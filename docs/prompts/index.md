@@ -74,3 +74,44 @@
 另一份是全英文的，给维护者看。
 
 务必要说明清楚故障的前因后果。说明清楚我在 window 系统内，使用 pnpm 全局安装的 gemini 包可以正常使用，但是在 `lib\hooks\websearch-transformer.cjs` 这个脚本内 isCliAvailable 函数能完成脚本识别，但是执行时 spawnSync 却出现了兼容性故障。故需要改造。
+
+### 01
+
+1. 检查 `C:\Users\pc\.ccs\hooks\websearch-transformer.cjs` 代码。
+2. 在运行 gemini 的时候，出现以下错误：
+
+```log
+Cannot use both a positional prompt and the
+     --prompt (-p) flag together
+     Usage: gemini [options] [command]
+
+     Gemini CLI - Launch an interactive CLI, use -p/--prompt for
+     non-interactive mode
+```
+
+请问是不是配置出问题了？参数不合适么？
+
+### 02
+
+1. 检查 `C:\Users\pc\.ccs\hooks\websearch-transformer.cjs` 代码。
+2. 在使用搜索工具 WebSearch 并用 gemini 代完成联网搜索的时候，出现以下错误：
+
+```log
+Error: [WebSearch - All Providers Failed]
+
+     Tried all enabled CLI tools but all failed:
+       - Gemini CLI: [ERROR] [ImportProcessor] Failed to import
+     ruan-cat/commitlint-config: ENOENT: no such file or directory,
+     access 'D:\code\github-desktop-store\learn-nitro-starter-with-ve     cel__ruan-cat\ruan-cat\commitlint-config'
+     [ERROR] [ImportProcessor] Failed to import changesets/cli:
+     ENOENT: no such file or directory, access 'D:\code\github-deskto     -store\learn-nitro-starter-with-vercel__ruan-cat\changesets\cli'     YOLO mode is enabled. All tool calls will be automatically
+     approved.
+     When using Gemini API, you must specify the GEMINI_API_KEY
+     environment variable.
+     Update your environment and try again (no reload needed if using     .env)!
+```
+
+### 03 对 gemini 的认证很疑惑
+
+1. 阅读 https://github.com/ruan-cat/monorepo/blob/main/claude-code-marketplace/common-tools/scripts/task-complete-notifier.sh 文件。
+2. 这个钩子同样是不需要使用 gemini 的登录验证的。为什么我提供的这个脚本内，直接使用 gemini 不会出现需要登录验证的情况，而 `C:\Users\pc\.ccs\hooks\websearch-transformer.cjs` 代码却需要验证呢？
