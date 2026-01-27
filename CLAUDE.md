@@ -281,144 +281,356 @@ gemini MCP 提供了一个工具 `gemini`，用于调用 Google Gemini 模型执
 
 1. 报告输出地址： 你在生成 markdown 格式的报告时，请默认输出到 `docs\reports` 目录下面，这便于我阅读。
 
-## 13. 项目概述
+## 13. Nitro v3 接口开发技能规范
 
-这是一个 Nitro v3 入门项目，设计用于部署到 Vercel 或 Cloudflare Workers。Nitro 是一个用于构建 Web 服务器和 API 的通用服务器框架。
+本节用于指导使用 Nitro v3 框架编写服务端接口，包括项目初始化、配置、接口编写规范等完整流程。
 
-**核心框架：** Nitro v3（注意：v3 版本中包名从 `nitropack` 改为 `nitro`）
+### 13.1. 适用场景
 
-**Node.js 要求：** >= 22.14.0
+- **纯后端 Nitro 项目初始化**：对非 Vite 的 Node.js 项目，初始化 Nitro 示例代码和配置
+- **Vite 项目全栈化**：对 Vite 项目，初始化 Nitro 接口和配置，赋予全栈能力
+- **接口开发与维护**：按规范编写 Nitro v3 格式的接口代码
 
-**包管理器：** pnpm 10.24.0（通过 Corepack 管理）
-
-## 14. 开发命令
-
-### 10.1. 启动开发服务器
+### 13.2. 核心依赖
 
 ```bash
-pnpm dev
-# 运行在 http://localhost:8080（在 nitro.config.ts 中配置）
+# Nitro v3 核心包
+pnpm add nitro
+
+# 可选：日志工具
+pnpm add consola
 ```
 
-### 10.2. 生产环境构建
+### 13.3. 目录结构规范
 
-```bash
-# Vercel（默认）
-pnpm build
-# 或明确指定
-pnpm build:vercel
+Nitro 支持两种目录结构，根据项目规模选择：
 
-# Cloudflare Workers
-pnpm build:cloudflare
-```
-
-### 10.3. 预览生产构建
-
-```bash
-pnpm preview
-# 从 .output/server/index.mjs 运行构建后的服务器
-```
-
-### 10.4. 部署到 Cloudflare
-
-```bash
-pnpm deploy:cloudflare
-# 从 .output 目录运行 wrangler deploy
-```
-
-### 10.5. 准备 Nitro 类型
-
-```bash
-pnpm prepare
-# 在 .nitro/types/ 中生成 TypeScript 类型
-```
-
-### 10.6. 更新依赖
-
-```bash
-pnpm up-taze
-# 更新 @ruan-cat/taze-config 并运行 taze 检查依赖更新
-```
-
-## 15. 架构设计
-
-### 11.1. 基于文件的路由
-
-Nitro 在 `server/` 目录中使用基于文件的路由：
-
-- `server/routes/*.{get,post,put,delete}.ts` - API 路由自动映射到 HTTP 方法
-- 示例：`server/routes/user.get.ts` 创建一个 GET 端点 `/api/user`
-
-### 11.2. 服务端目录结构
+**扁平结构（推荐用于小型项目）**
 
 ```plain
-server/
-└── routes/           # API 路由（基于文件的路由）
-    └── *.{method}.ts # 按 HTTP 方法命名的路由文件
+project-root/
+├── server/                          # Nitro 服务端目录
+│   ├── routes/                      # API 路由目录
+│   │   ├── users.get.ts             # GET /users
+│   │   ├── users.post.ts            # POST /users
+│   │   └── health.get.ts            # GET /health
+│   └── db/                          # 数据库相关（可选）
+│       └── index.ts
+├── nitro.config.ts                  # Nitro 配置文件
+└── package.json
 ```
 
-### 11.3. 配置说明
+**模块化结构（适用于大型项目）**
 
-**nitro.config.ts** - Nitro 主配置文件：
+```plain
+project-root/
+├── server/                          # Nitro 服务端目录
+│   ├── api/                         # API 接口目录
+│   │   └── {module}/{feature}/
+│   │       ├── list.post.ts         # 列表查询接口
+│   │       └── [id].get.ts          # 详情接口
+│   └── utils/                       # 工具函数（可选）
+│       └── filter-data.ts
+├── nitro.config.ts                  # Nitro 配置文件
+└── package.json
+```
 
-- `preset` 应在构建命令中指定，而非配置文件中
-- `compatibilityDate: "latest"` - 使用最新的兼容性特性
-- `imports: false` - 禁用自动导入
-- `serverDir: "server"` - 服务器代码位置
-- `cloudflare.wrangler.name` - Cloudflare Worker 名称设置为 `learn-nitro-starter-with-vercel`
+**文件路径映射规则**：文件路径直接映射为 API 路径
 
-### 11.4. 事件处理器
+```plain
+文件: server/routes/users.get.ts     -> GET /users
+文件: server/api/users/list.post.ts  -> POST /api/users/list
+```
 
-所有路由处理器使用 `nitro/h3` 中的 `eventHandler`：
+### 13.4. 核心规范 [CRITICAL]
+
+**导入模块规范**
 
 ```typescript
-import { eventHandler } from "nitro/h3";
+// 必须从 nitro/h3 导入，不是 h3
+import { defineHandler, readBody } from "nitro/h3";
 
-export default eventHandler((event) => {
+// 类型导入（根据项目实际定义）
+import type { UserItem, QueryParams } from "./types";
+```
+
+**基础接口模板**
+
+```typescript
+/**
+ * @file 用户列表接口
+ * @description User list API
+ * GET /users
+ */
+
+import { defineHandler } from "nitro/h3";
+
+export default defineHandler(async (event) => {
 	return {
-		/* 响应数据 */
+		success: true,
+		data: [
+			{ id: "1", name: "John" },
+			{ id: "2", name: "Jane" },
+		],
 	};
 });
 ```
 
-### 11.5. 构建输出
+**带参数的接口模板**
 
-构建产物生成在 `.output/` 目录：
+```typescript
+/**
+ * @file 创建用户接口
+ * @description Create user API
+ * POST /users
+ */
 
-- `.output/server/` - 服务器打包文件
-- `.output/public/` - 静态资源
+import { defineHandler, readBody } from "nitro/h3";
 
-## 16. TypeScript 配置
+interface CreateUserBody {
+	name: string;
+	email: string;
+}
 
-- 扩展 `.nitro/types/tsconfig.json`（由 `pnpm prepare` 生成）
-- 启用严格模式和额外的安全检查
-- 模块解析：Bundler
-- 目标：ESNext
-- JSX 支持配置（工厂函数：`h`，片段：`Fragment`）
+export default defineHandler(async (event) => {
+	const body = await readBody<CreateUserBody>(event);
 
-## 17. 部署方式
+	if (!body.name || !body.email) {
+		return {
+			success: false,
+			message: "name 和 email 是必填字段",
+		};
+	}
 
-### 13.1. Vercel
+	// 处理业务逻辑...
 
-- 零配置部署
-- 构建命令中使用 `--preset=vercel`
-- 通过 Vercel CLI 或 Git 集成部署
+	return {
+		success: true,
+		message: "创建成功",
+		data: { id: "new-id", ...body },
+	};
+});
+```
 
-### 13.2. Cloudflare Workers
+**关键要点检查清单**
 
-- 构建命令：`corepack use pnpm@latest && pnpm build:cloudflare`
-- 使用 `--preset=cloudflare_module`
-- 配置了 Node.js 兼容性（`nodeCompat: true`）
-- 使用 wrangler 从 `.output/` 目录部署
+1. **导入来源**：`nitro/h3` 而非 `h3`
+2. **处理器函数**：`defineHandler` 而非 `defineEventHandler`
+3. **JSDoc 注释**：包含接口路径和描述
+4. **类型约束**：为请求体和响应添加类型定义
 
-## 18. 开发工具
+### 13.5. 常见错误对比
+
+|                 错误写法                  |                   正确写法                   |
+| :---------------------------------------: | :------------------------------------------: |
+| `import { defineEventHandler } from "h3"` |  `import { defineHandler } from "nitro/h3"`  |
+| `export default defineEventHandler(...)`  |     `export default defineHandler(...)`      |
+|         缺少类型约束的请求体读取          |         `readBody<YourType>(event)`          |
+|            直接返回对象无结构             | 返回 `{ success, message, data }` 结构化响应 |
+
+### 13.6. Nitro 配置
+
+**基础配置**
+
+```typescript
+import { defineConfig } from "nitro";
+
+export default defineConfig({
+	serverDir: "server",
+	imports: false,
+	compatibilityDate: "2024-09-19",
+	devServer: {
+		port: 3000,
+	},
+});
+```
+
+**完整配置示例**
+
+```typescript
+import { defineConfig } from "nitro";
+
+export default defineConfig({
+	/** 服务端代码目录 */
+	serverDir: "server",
+
+	/** 禁用自动导入，显式声明所有依赖 */
+	imports: false,
+
+	/** 兼容性日期 */
+	compatibilityDate: "2024-09-19",
+
+	/** 开发服务器配置 */
+	devServer: {
+		port: 3000,
+		watch: ["./server/**/*.ts"],
+	},
+
+	/** 路径别名配置（可选） */
+	alias: {
+		"@": "./src",
+		server: "./server",
+	},
+});
+```
+
+**Vite 集成**
+
+```typescript
+// vite.config.ts 或 build/plugins/index.ts
+import { nitro } from "nitro/vite";
+
+export default defineConfig({
+	plugins: [
+		// 其他插件...
+		nitro(),
+	],
+});
+```
+
+### 13.7. 部署配置
+
+**环境变量规范**
+
+```bash
+# Nitro 运行时配置前缀必须为 NITRO_
+NITRO_API_TOKEN="your-api-token"
+
+# 部署预设
+NITRO_PRESET=cloudflare_module  # Cloudflare Workers
+NITRO_PRESET=vercel             # Vercel
+NITRO_PRESET=node               # Node.js 服务器
+```
+
+**环境变量访问**
+
+```typescript
+import { defineHandler } from "nitro/h3";
+import { useRuntimeConfig } from "nitro/runtime-config";
+
+export default defineHandler((event) => {
+	// 必须在事件处理器内访问
+	const config = useRuntimeConfig();
+	return { value: config.apiToken };
+});
+```
+
+### 13.8. 响应格式规范
+
+推荐使用统一的响应格式，便于前端处理：
+
+**基础响应结构**
+
+```typescript
+interface ApiResponse<T> {
+	success: boolean;
+	message?: string;
+	data?: T;
+}
+```
+
+**分页响应结构（可选）**
+
+```typescript
+interface PageResponse<T> {
+	success: boolean;
+	message?: string;
+	data: {
+		list: T[];
+		total: number;
+		pageIndex: number;
+		pageSize: number;
+		totalPages: number;
+	};
+}
+```
+
+### 13.9. 项目初始化检查清单
+
+**纯后端项目**
+
+- [ ] 安装 `nitro` 依赖包
+- [ ] 创建 `server/routes/` 目录结构
+- [ ] 创建 `nitro.config.ts` 配置文件
+- [ ] 添加开发和构建脚本到 `package.json`
+
+**Vite 项目全栈化**
+
+- [ ] 安装 `nitro` 依赖包
+- [ ] 在 Vite 插件配置中添加 `nitro()` 插件
+- [ ] 创建 `server/` 目录结构
+- [ ] 创建 `nitro.config.ts` 配置文件
+
+### 13.10. 核心函数速查
+
+**请求处理函数**
+
+|       函数       |    来源    |               说明 |
+| :--------------: | :--------: | -----------------: |
+| `defineHandler`  | `nitro/h3` | 定义请求处理器函数 |
+|    `readBody`    | `nitro/h3` |     读取请求体数据 |
+|    `getQuery`    | `nitro/h3` |  获取 URL 查询参数 |
+| `getRouterParam` | `nitro/h3` |   获取路由动态参数 |
+|   `getHeader`    | `nitro/h3` |         获取请求头 |
+|   `setHeader`    | `nitro/h3` |         设置响应头 |
+|   `setCookie`    | `nitro/h3` |        设置 Cookie |
+|   `getCookie`    | `nitro/h3` |        获取 Cookie |
+
+**运行时配置函数**
+
+|        函数        |          来源          |               说明 |
+| :----------------: | :--------------------: | -----------------: |
+| `useRuntimeConfig` | `nitro/runtime-config` | 获取运行时配置对象 |
+
+**响应函数**
+
+|      函数      |    来源    |           说明 |
+| :------------: | :--------: | -------------: |
+|     `send`     | `nitro/h3` |       发送响应 |
+| `sendRedirect` | `nitro/h3` | 发送重定向响应 |
+|  `sendError`   | `nitro/h3` |   发送错误响应 |
+| `createError`  | `nitro/h3` |   创建错误对象 |
+
+### 13.11. 部署预设列表
+
+|        预设         |        平台        |
+| :-----------------: | :----------------: |
+|       `node`        |   Node.js 服务器   |
+| `cloudflare_module` | Cloudflare Workers |
+| `cloudflare_pages`  |  Cloudflare Pages  |
+|      `vercel`       |       Vercel       |
+|      `netlify`      |      Netlify       |
+|      `static`       |      静态站点      |
+|       `deno`        |    Deno Deploy     |
+
+### 13.12. 开发命令速查
+
+```bash
+# 开发模式
+pnpm nitro dev
+
+# 构建
+pnpm nitro build
+
+# 预览
+pnpm nitro preview
+
+# 类型检查
+pnpm typecheck
+```
+
+### 13.13. 附加资源
+
+- **官方文档**：https://v3.nitro.build/
+
+## 14. 开发工具
 
 - **commitlint** - 使用 `@ruan-cat/commitlint-config` 进行提交信息校验
 - **commitizen/cz-git** - 交互式提交工具（通过 `.czrc` 配置）
 - **taze** - 使用 `@ruan-cat/taze-config` 进行依赖更新检查
 - **rolldown** - 构建工具（测试版）
 
-## 19. 学习目标（来自 README）
+## 15. 学习目标（来自 README）
 
 本项目作为学习环境，用于学习：
 
