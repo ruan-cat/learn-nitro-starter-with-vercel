@@ -25,16 +25,34 @@ pnpm add consola
 
 ## 3. 目录结构规范
 
+Nitro 支持两种目录结构，根据项目规模选择：
+
+### 3.1 扁平结构（推荐用于小型项目）
+
+```plain
+project-root/
+├── server/                          # Nitro 服务端目录
+│   ├── routes/                      # API 路由目录
+│   │   ├── users.get.ts             # GET /users
+│   │   ├── users.post.ts            # POST /users
+│   │   └── health.get.ts            # GET /health
+│   └── db/                          # 数据库相关（可选）
+│       └── index.ts
+├── nitro.config.ts                  # Nitro 配置文件
+└── package.json
+```
+
+### 3.2 模块化结构（适用于大型项目）
+
 ```plain
 project-root/
 ├── server/                          # Nitro 服务端目录
 │   ├── api/                         # API 接口目录
-│   │   └── {module}/{sub-module}/{page}/
+│   │   └── {module}/{feature}/
 │   │       ├── list.post.ts         # 列表查询接口
-│   │       ├── tree.post.ts         # 树形数据接口
-│   │       └── mock-data.ts         # Mock 数据文件
-│   └── utils/
-│       └── filter-data.ts           # 通用数据筛选工具
+│   │       └── [id].get.ts          # 详情接口
+│   └── utils/                       # 工具函数（可选）
+│       └── filter-data.ts
 ├── nitro.config.ts                  # Nitro 配置文件
 └── package.json
 ```
@@ -42,8 +60,8 @@ project-root/
 **文件路径映射规则**：文件路径直接映射为 API 路径
 
 ```plain
-文件: server/api/dev-team/config-manage/center/list.post.ts
-路径: POST /api/dev-team/config-manage/center/list
+文件: server/routes/users.get.ts     -> GET /users
+文件: server/api/users/list.post.ts  -> POST /api/users/list
 ```
 
 ## 4. 核心规范 [CRITICAL]
@@ -54,82 +72,83 @@ project-root/
 // 必须从 nitro/h3 导入，不是 h3
 import { defineHandler, readBody } from "nitro/h3";
 
-// 类型和常量导入
-import type { JsonVO, PageDTO, ListItem, QueryParams } from "@01s-11comm/type";
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@01s-11comm/type";
-import { filterDataByQuery } from "server/utils/filter-data";
+// 类型导入（根据项目实际定义）
+import type { UserItem, QueryParams } from "./types";
 ```
 
-### 4.2 标准列表接口模板
+### 4.2 基础接口模板
 
 ```typescript
 /**
- * @file 配置中心列表接口
- * @description Configuration center list API
- * POST /api/dev-team/config-manage/center/list
+ * @file 用户列表接口
+ * @description User list API
+ * GET /users
  */
 
-import { defineHandler, readBody } from "nitro/h3";
-import type { JsonVO, PageDTO, ConfigCenterListItem, ConfigCenterQueryParams } from "@01s-11comm/type";
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@01s-11comm/type";
-import { filterDataByQuery } from "server/utils/filter-data";
-import { mockConfigCenterData } from "./mock-data";
+import { defineHandler } from "nitro/h3";
 
-export default defineHandler(async (event): Promise<JsonVO<PageDTO<ConfigCenterListItem>>> => {
-	// 1. 读取请求参数
-	const body = await readBody<ConfigCenterQueryParams>(event);
-	const defaultParams: ConfigCenterQueryParams = {
-		pageIndex: DEFAULT_PAGE_INDEX,
-		pageSize: DEFAULT_PAGE_SIZE,
-	};
-	const mergedParams = { ...defaultParams, ...body };
-	const { pageIndex, pageSize, ...filters } = mergedParams;
-
-	// 2. 数据筛选
-	const filteredData = filterDataByQuery(mockConfigCenterData, filters);
-
-	// 3. 分页处理
-	const total = filteredData.length;
-	const startIndex = (pageIndex - 1) * pageSize;
-	const pageData = filteredData.slice(startIndex, startIndex + pageSize);
-
-	// 4. 返回标准格式
-	const response: JsonVO<PageDTO<ConfigCenterListItem>> = {
+export default defineHandler(async (event) => {
+	return {
 		success: true,
-		code: 200,
-		message: "查询成功",
-		data: {
-			list: pageData,
-			total,
-			pageIndex,
-			pageSize,
-			totalPages: Math.ceil(total / pageSize),
-		},
+		data: [
+			{ id: "1", name: "John" },
+			{ id: "2", name: "Jane" },
+		],
 	};
-
-	return response;
 });
 ```
 
-### 4.3 关键要点检查清单
+### 4.3 带参数的接口模板
+
+```typescript
+/**
+ * @file 创建用户接口
+ * @description Create user API
+ * POST /users
+ */
+
+import { defineHandler, readBody } from "nitro/h3";
+
+interface CreateUserBody {
+	name: string;
+	email: string;
+}
+
+export default defineHandler(async (event) => {
+	const body = await readBody<CreateUserBody>(event);
+
+	if (!body.name || !body.email) {
+		return {
+			success: false,
+			message: "name 和 email 是必填字段",
+		};
+	}
+
+	// 处理业务逻辑...
+
+	return {
+		success: true,
+		message: "创建成功",
+		data: { id: "new-id", ...body },
+	};
+});
+```
+
+### 4.4 关键要点检查清单
 
 1. **导入来源**：`nitro/h3` 而非 `h3`
 2. **处理器函数**：`defineHandler` 而非 `defineEventHandler`
-3. **返回值**：创建 `response` 变量并添加完整类型约束
-4. **JSDoc 注释**：包含接口路径和描述
-5. **参数处理**：使用默认参数对象合并，不使用解构默认值
-6. **数据筛选**：使用 `filterDataByQuery` 工具函数
-7. **分页常量**：使用 `DEFAULT_PAGE_INDEX` 和 `DEFAULT_PAGE_SIZE`
+3. **JSDoc 注释**：包含接口路径和描述
+4. **类型约束**：为请求体和响应添加类型定义
 
 ## 5. 常见错误对比
 
-| 错误写法                                  | 正确写法                                                |
-| :---------------------------------------- | :------------------------------------------------------ |
-| `import { defineEventHandler } from "h3"` | `import { defineHandler } from "nitro/h3"`              |
-| `export default defineEventHandler(...)`  | `export default defineHandler(...)`                     |
-| `return { success: true, ... }`           | `const response: JsonVO<...> = {...}; return response;` |
-| `const { pageIndex = 1 } = body`          | 使用 defaultParams 对象合并                             |
-| 手动编写 filter 逻辑                      | `filterDataByQuery(data, filters)`                      |
+| 错误写法                                  | 正确写法                                     |
+| :---------------------------------------- | :------------------------------------------- |
+| `import { defineEventHandler } from "h3"` | `import { defineHandler } from "nitro/h3"`   |
+| `export default defineEventHandler(...)`  | `export default defineHandler(...)`          |
+| 缺少类型约束的请求体读取                  | `readBody<YourType>(event)`                  |
+| 直接返回对象无结构                        | 返回 `{ success, message, data }` 结构化响应 |
 
 ## 6. Nitro 配置
 
@@ -139,15 +158,45 @@ export default defineHandler(async (event): Promise<JsonVO<PageDTO<ConfigCenterL
 import { defineConfig } from "nitro";
 
 export default defineConfig({
-	serverDir: "./server",
-	scanDirs: ["./server"],
-	devServer: { watch: ["./server/**/*.ts"] },
-	alias: { "@": "./src", server: "./server" },
+	serverDir: "server",
+	imports: false,
 	compatibilityDate: "2024-09-19",
+	devServer: {
+		port: 3000,
+	},
 });
 ```
 
-### 6.2 Vite 集成
+### 6.2 完整配置示例
+
+```typescript
+import { defineConfig } from "nitro";
+
+export default defineConfig({
+	/** 服务端代码目录 */
+	serverDir: "server",
+
+	/** 禁用自动导入，显式声明所有依赖 */
+	imports: false,
+
+	/** 兼容性日期 */
+	compatibilityDate: "2024-09-19",
+
+	/** 开发服务器配置 */
+	devServer: {
+		port: 3000,
+		watch: ["./server/**/*.ts"],
+	},
+
+	/** 路径别名配置（可选） */
+	alias: {
+		"@": "./src",
+		server: "./server",
+	},
+});
+```
+
+### 6.3 Vite 集成
 
 ```typescript
 // vite.config.ts 或 build/plugins/index.ts
@@ -190,26 +239,31 @@ export default defineHandler((event) => {
 
 ## 8. 响应格式规范
 
-### 8.1 JsonVO 结构
+推荐使用统一的响应格式，便于前端处理：
+
+### 8.1 基础响应结构
 
 ```typescript
-interface JsonVO<T> {
+interface ApiResponse<T> {
 	success: boolean;
-	code: number;
-	message: string;
-	data: T;
+	message?: string;
+	data?: T;
 }
 ```
 
-### 8.2 PageDTO 结构
+### 8.2 分页响应结构（可选）
 
 ```typescript
-interface PageDTO<T> {
-	list: T[];
-	total: number;
-	pageIndex: number;
-	pageSize: number;
-	totalPages: number;
+interface PageResponse<T> {
+	success: boolean;
+	message?: string;
+	data: {
+		list: T[];
+		total: number;
+		pageIndex: number;
+		pageSize: number;
+		totalPages: number;
+	};
 }
 ```
 
@@ -218,9 +272,9 @@ interface PageDTO<T> {
 ### 9.1 纯后端项目
 
 - [ ] 安装 `nitro` 依赖包
-- [ ] 创建 `server/` 目录结构
+- [ ] 创建 `server/routes/` 目录结构
 - [ ] 创建 `nitro.config.ts` 配置文件
-- [ ] 创建 `server/utils/filter-data.ts` 工具函数
+- [ ] 添加开发和构建脚本到 `package.json`
 
 ### 9.2 Vite 项目全栈化
 
@@ -228,14 +282,22 @@ interface PageDTO<T> {
 - [ ] 在 Vite 插件配置中添加 `nitro()` 插件
 - [ ] 创建 `server/` 目录结构
 - [ ] 创建 `nitro.config.ts` 配置文件
-- [ ] 创建 `server/utils/filter-data.ts` 工具函数
 
-## 10. 附加资源
+## 10. 可选功能
+
+### 10.1 数据筛选工具函数
+
+如果项目需要 Mock 数据和筛选功能，可创建 `server/utils/filter-data.ts`，详见 [templates.md](templates.md)。
+
+### 10.2 Mock 数据模板
+
+对于需要模拟数据的开发场景，可参考 [templates.md](templates.md) 中的 Mock 数据模板。
+
+## 11. 附加资源
 
 详细的代码模板和参考文档请查阅：
 
 - **初始化模板**：[templates.md](templates.md) - 包含完整的配置和接口代码模板
 - **快速参考**：[reference.md](reference.md) - 函数速查、配置选项和常用类型
-- **本项目规范**：`openspec/specs/nitro-api/spec.md`
-- **接口示例**：`apps/admin/server/api/`
+- **项目规范文档**：查阅本项目的规范文档目录
 - **官方文档**：https://v3.nitro.build/

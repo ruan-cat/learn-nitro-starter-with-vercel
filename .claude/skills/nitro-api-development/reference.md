@@ -38,36 +38,33 @@
 
 ```typescript
 export default defineConfig({
-	// 服务端目录
-	serverDir: "./server",
+	/** 服务端目录 */
+	serverDir: "server",
 
-	// 扫描目录
-	scanDirs: ["./server"],
+	/** 禁用自动导入 */
+	imports: false,
 
-	// 开发服务器
+	/** 兼容性日期 */
+	compatibilityDate: "2024-09-19",
+
+	/** 开发服务器 */
 	devServer: {
-		watch: ["./server/**/*.ts"],
 		port: 3000,
+		watch: ["./server/**/*.ts"],
 	},
 
-	// 路径别名
+	/** 路径别名（可选） */
 	alias: {
 		"@": "./src",
 		server: "./server",
 	},
 
-	// 兼容性日期
-	compatibilityDate: "2024-09-19",
-
-	// TypeScript 配置
+	/** TypeScript 配置 */
 	typescript: {
 		typeCheck: false,
 	},
 
-	// 预设（部署平台）
-	// preset: "cloudflare_module",
-
-	// Cloudflare 配置
+	/** Cloudflare 配置（可选） */
 	cloudflare: {
 		deployConfig: true,
 		nodeCompat: true,
@@ -112,25 +109,36 @@ export default defineHandler(async (event) => {
 
 ```typescript
 import { defineHandler, readBody } from "nitro/h3";
-import type { JsonVO, PageDTO, ListItem, QueryParams } from "@01s-11comm/type";
 
-export default defineHandler(async (event): Promise<JsonVO<PageDTO<ListItem>>> => {
+interface QueryParams {
+	pageIndex: number;
+	pageSize: number;
+	keyword?: string;
+}
+
+interface ListItem {
+	id: string;
+	name: string;
+}
+
+export default defineHandler(async (event) => {
 	const body = await readBody<QueryParams>(event);
+	const { pageIndex = 1, pageSize = 10 } = body;
 
-	const response: JsonVO<PageDTO<ListItem>> = {
+	// 处理业务逻辑...
+	const list: ListItem[] = [];
+	const total = 0;
+
+	return {
 		success: true,
-		code: 200,
-		message: "查询成功",
 		data: {
-			list: [],
-			total: 0,
-			pageIndex: 1,
-			pageSize: 10,
-			totalPages: 0,
+			list,
+			total,
+			pageIndex,
+			pageSize,
+			totalPages: Math.ceil(total / pageSize),
 		},
 	};
-
-	return response;
 });
 ```
 
@@ -230,9 +238,8 @@ export default defineHandler(async (event) => {
 ### 5.2 标准错误响应格式
 
 ```typescript
-const errorResponse: JsonVO<null> = {
+const errorResponse = {
 	success: false,
-	code: 400,
 	message: "请求参数错误",
 	data: null,
 };
@@ -240,32 +247,30 @@ const errorResponse: JsonVO<null> = {
 
 ## 6. 文件路径与 API 路径映射
 
-| 文件路径                                 | HTTP 方法 |                API 路径 |
-| :--------------------------------------- | :-------: | ----------------------: |
-| `server/api/users/list.post.ts`          |   POST    |       `/api/users/list` |
-| `server/api/users/[id].get.ts`           |    GET    |        `/api/users/:id` |
-| `server/api/users/create.post.ts`        |   POST    |     `/api/users/create` |
-| `server/api/users/[id]/update.put.ts`    |    PUT    | `/api/users/:id/update` |
-| `server/api/users/[id]/delete.delete.ts` |  DELETE   | `/api/users/:id/delete` |
+| 文件路径                              | HTTP 方法 |                API 路径 |
+| :------------------------------------ | :-------: | ----------------------: |
+| `server/routes/users.get.ts`          |    GET    |                `/users` |
+| `server/routes/users.post.ts`         |   POST    |                `/users` |
+| `server/routes/users/[id].get.ts`     |    GET    |            `/users/:id` |
+| `server/api/users/list.post.ts`       |   POST    |       `/api/users/list` |
+| `server/api/users/[id]/update.put.ts` |    PUT    | `/api/users/:id/update` |
 
-## 7. 常用类型定义
+## 7. 常用类型定义（可选）
 
-### 7.1 JsonVO 响应包装类型
+### 7.1 基础响应类型
 
 ```typescript
-interface JsonVO<T> {
+interface ApiResponse<T> {
 	success: boolean;
-	code: number;
-	message: string;
-	data: T;
-	timestamp?: number;
+	message?: string;
+	data?: T;
 }
 ```
 
-### 7.2 PageDTO 分页数据类型
+### 7.2 分页数据类型
 
 ```typescript
-interface PageDTO<T> {
+interface PageData<T> {
 	list: T[];
 	total: number;
 	pageIndex: number;
@@ -286,11 +291,7 @@ interface BaseQueryParams {
 ## 8. 常用常量
 
 ```typescript
-// 默认分页参数
-const DEFAULT_PAGE_INDEX = 1;
-const DEFAULT_PAGE_SIZE = 10;
-
-// 状态码
+/** HTTP 状态码 */
 const SUCCESS_CODE = 200;
 const BAD_REQUEST_CODE = 400;
 const UNAUTHORIZED_CODE = 401;

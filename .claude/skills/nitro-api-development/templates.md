@@ -9,33 +9,17 @@ import { defineConfig } from "nitro";
 
 export default defineConfig({
 	/** 服务端代码目录 */
-	serverDir: "./server",
+	serverDir: "server",
 
-	/**
-	 * 配置 Nitro 扫描目录
-	 * @description
-	 * 明确指定 Nitro 只扫描服务端目录，避免扫描客户端代码
-	 * @see https://nitro.unjs.io/config#scandirs
-	 */
-	scanDirs: ["./server"],
-
-	/** 开发服务器配置 */
-	devServer: {
-		watch: ["./server/**/*.ts"],
-	},
-
-	/** 路径别名配置 */
-	alias: {
-		"@": "./src",
-		server: "./server",
-	},
+	/** 禁用自动导入，显式声明所有依赖 */
+	imports: false,
 
 	/** 兼容性日期 */
 	compatibilityDate: "2024-09-19",
 
-	/** TypeScript 配置 */
-	typescript: {
-		// typeCheck: true,
+	/** 开发服务器配置 */
+	devServer: {
+		port: 3000,
 	},
 });
 ```
@@ -46,8 +30,8 @@ export default defineConfig({
 import { defineConfig } from "nitro";
 
 export default defineConfig({
-	serverDir: "./server",
-	scanDirs: ["./server"],
+	serverDir: "server",
+	imports: false,
 	compatibilityDate: "2024-09-19",
 
 	/** Cloudflare 部署配置 */
@@ -57,15 +41,14 @@ export default defineConfig({
 		wrangler: {
 			/** 部署到 Cloudflare Worker 的名称 */
 			name: "your-project-name",
-			vars: {
-				// 环境变量配置
-			},
 		},
 	},
 });
 ```
 
-## 3. filter-data.ts 工具函数模板
+## 3. filter-data.ts 工具函数模板（可选）
+
+此模板适用于需要 Mock 数据和筛选功能的项目。
 
 ```typescript
 /**
@@ -116,42 +99,113 @@ export function filterDataByQuery<TItem, TFilters extends Partial<TItem> = Parti
 }
 ```
 
-## 4. 标准列表接口模板
+## 4. 基础接口模板
 
 ```typescript
 /**
- * @file {页面名称}列表接口
- * @description {Page name} list API
- * POST /api/{module}/{sub-module}/{page}/list
+ * @file 用户列表接口
+ * @description User list API
+ * GET /users
+ */
+
+import { defineHandler } from "nitro/h3";
+
+interface User {
+	id: string;
+	name: string;
+	email: string;
+}
+
+export default defineHandler(async (event) => {
+	const users: User[] = [
+		{ id: "1", name: "John", email: "john@example.com" },
+		{ id: "2", name: "Jane", email: "jane@example.com" },
+	];
+
+	return {
+		success: true,
+		data: users,
+	};
+});
+```
+
+## 5. 带参数的接口模板
+
+```typescript
+/**
+ * @file 创建用户接口
+ * @description Create user API
+ * POST /users
  */
 
 import { defineHandler, readBody } from "nitro/h3";
-import type { JsonVO, PageDTO, YourListItem, YourQueryParams } from "@01s-11comm/type";
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "@01s-11comm/type";
-import { filterDataByQuery } from "server/utils/filter-data";
-import { mockYourData } from "./mock-data";
 
-export default defineHandler(async (event): Promise<JsonVO<PageDTO<YourListItem>>> => {
-	const body = await readBody<YourQueryParams>(event);
-	const defaultParams: YourQueryParams = {
-		pageIndex: DEFAULT_PAGE_INDEX,
-		pageSize: DEFAULT_PAGE_SIZE,
+interface CreateUserBody {
+	name: string;
+	email: string;
+}
+
+export default defineHandler(async (event) => {
+	const body = await readBody<CreateUserBody>(event);
+
+	if (!body.name || !body.email) {
+		return {
+			success: false,
+			message: "name 和 email 是必填字段",
+		};
+	}
+
+	// 处理业务逻辑...
+
+	return {
+		success: true,
+		message: "创建成功",
+		data: { id: "new-id", ...body },
 	};
-	const mergedParams = { ...defaultParams, ...body };
-	const { pageIndex, pageSize, ...filters } = mergedParams;
+});
+```
+
+## 6. 分页列表接口模板（可选）
+
+此模板适用于需要 Mock 数据和分页功能的场景。
+
+```typescript
+/**
+ * @file 用户列表分页接口
+ * @description User list with pagination API
+ * POST /users/list
+ */
+
+import { defineHandler, readBody } from "nitro/h3";
+import { filterDataByQuery } from "../utils/filter-data";
+import { mockUserData } from "./mock-data";
+
+interface QueryParams {
+	pageIndex: number;
+	pageSize: number;
+	name?: string;
+}
+
+interface UserItem {
+	id: string;
+	name: string;
+	status: string;
+}
+
+export default defineHandler(async (event) => {
+	const body = await readBody<QueryParams>(event);
+	const { pageIndex = 1, pageSize = 10, ...filters } = body;
 
 	/** 数据筛选 */
-	const filteredData = filterDataByQuery(mockYourData, filters);
+	const filteredData = filterDataByQuery(mockUserData, filters);
 
 	/** 分页处理 */
 	const total = filteredData.length;
 	const startIndex = (pageIndex - 1) * pageSize;
 	const pageData = filteredData.slice(startIndex, startIndex + pageSize);
 
-	/** 返回标准格式 */
-	const response: JsonVO<PageDTO<YourListItem>> = {
+	return {
 		success: true,
-		code: 200,
 		message: "查询成功",
 		data: {
 			list: pageData,
@@ -161,70 +215,79 @@ export default defineHandler(async (event): Promise<JsonVO<PageDTO<YourListItem>
 			totalPages: Math.ceil(total / pageSize),
 		},
 	};
-
-	return response;
 });
 ```
 
-## 5. 标准树形接口模板
+## 7. 树形数据接口模板（可选）
 
 ```typescript
 /**
- * @file {页面名称}树形接口
- * @description {Page name} tree API
- * POST /api/{module}/{sub-module}/{page}/tree
+ * @file 组织树形接口
+ * @description Organization tree API
+ * GET /organization/tree
  */
 
 import { defineHandler } from "nitro/h3";
-import type { JsonVO, YourTreeNode } from "@01s-11comm/type";
-import { mockYourTreeData } from "./mock-data";
 
-export default defineHandler(async (event): Promise<JsonVO<YourTreeNode[]>> => {
-	/** 返回标准格式 */
-	const response: JsonVO<YourTreeNode[]> = {
+interface TreeNode {
+	id: string;
+	name: string;
+	parentId: string | null;
+	children?: TreeNode[];
+}
+
+const mockTreeData: TreeNode[] = [
+	{
+		id: "1",
+		name: "总部",
+		parentId: null,
+		children: [
+			{ id: "2", name: "技术部", parentId: "1" },
+			{ id: "3", name: "产品部", parentId: "1" },
+		],
+	},
+];
+
+export default defineHandler(async (event) => {
+	return {
 		success: true,
-		code: 200,
-		message: "查询成功",
-		data: mockYourTreeData,
+		data: mockTreeData,
 	};
-
-	return response;
 });
 ```
 
-## 6. Mock 数据文件模板
+## 8. Mock 数据文件模板（可选）
 
 ```typescript
 /**
- * @file {页面名称}假数据
- * @description {Page name} mock data
+ * @file 用户假数据
+ * @description User mock data
  */
 
-import type { YourListItem } from "@01s-11comm/type";
+interface UserItem {
+	id: string;
+	name: string;
+	status: "启用" | "禁用";
+	createTime: string;
+}
 
-/**
- * {页面名称}假数据
- * {Page name} mock data
- */
-export const mockYourData: YourListItem[] = [
+export const mockUserData: UserItem[] = [
 	{
 		id: "001",
-		name: "示例数据1",
+		name: "张三",
 		status: "启用",
 		createTime: "2024-01-01 09:00:00",
-		updateTime: "2024-01-15 14:30:00",
 	},
 	{
 		id: "002",
-		name: "示例数据2",
+		name: "李四",
 		status: "启用",
 		createTime: "2024-01-02 10:00:00",
-		updateTime: "2024-01-16 15:30:00",
 	},
 ];
 ```
 
-## 7. Vite 插件配置模板
+## 9. Vite 插件配置模板
 
 ```typescript
 // build/plugins/index.ts 或 vite.config.ts
@@ -248,7 +311,7 @@ export function getPluginsList(): PluginOption[] {
 }
 ```
 
-## 8. package.json 脚本配置
+## 10. package.json 脚本配置
 
 ```json
 {
@@ -261,62 +324,60 @@ export function getPluginsList(): PluginOption[] {
 }
 ```
 
-## 9. 类型定义模板
+## 11. 类型定义模板
 
-### 9.1 列表项类型
+### 11.1 列表项类型
 
 ```typescript
 /**
- * @file {页面名称}类型定义
- * @description {Page name} type definitions
+ * @file 用户类型定义
+ * @description User type definitions
  */
 
-/** {页面名称}列表项 {Page name} list item */
-export interface YourListItem {
+/** 用户列表项 */
+export interface UserItem {
 	/** ID */
 	id: string;
-	/** 名称 Name */
+	/** 名称 */
 	name: string;
-	/** 状态 Status */
+	/** 状态 */
 	status: "启用" | "禁用";
-	/** 创建时间 Create time */
+	/** 创建时间 */
 	createTime: string;
-	/** 更新时间 Update time */
-	updateTime: string;
 }
 
-/** {页面名称}查询参数 {Page name} query params */
-export interface YourQueryParams {
-	/** 页码 Page index */
+/** 查询参数 */
+export interface QueryParams {
+	/** 页码 */
 	pageIndex: number;
-	/** 每页大小 Page size */
+	/** 每页大小 */
 	pageSize: number;
-	/** 名称（筛选用） Name for filtering */
+	/** 名称（筛选用） */
 	name?: string;
-	/** 状态（筛选用） Status for filtering */
+	/** 状态（筛选用） */
 	status?: string;
 }
 ```
 
-### 9.2 树形节点类型
+### 11.2 树形节点类型
 
 ```typescript
-/** {页面名称}树形节点 {Page name} tree node */
-export interface YourTreeNode {
+/** 树形节点 */
+export interface TreeNode {
 	/** ID */
 	id: string;
-	/** 名称 Name */
+	/** 名称 */
 	name: string;
-	/** 父节点ID Parent ID */
+	/** 父节点ID */
 	parentId: string | null;
-	/** 子节点 Children */
-	children?: YourTreeNode[];
+	/** 子节点 */
+	children?: TreeNode[];
 }
 ```
 
-## 10. 环境变量配置模板
+## 12. 环境变量配置模板
 
-### 10.1 .env 文件
+### 12.1 .env 文件
 
 ```bash
 # Nitro 运行时配置
@@ -335,7 +396,7 @@ NITRO_DATABASE_URL="your-database-url"
 # NITRO_PRESET=node
 ```
 
-### 10.2 .env.development
+### 12.2 .env.development
 
 ```bash
 # 开发环境配置
@@ -343,7 +404,7 @@ NITRO_API_TOKEN="dev-token"
 NITRO_DEBUG=true
 ```
 
-### 10.3 .env.production
+### 12.3 .env.production
 
 ```bash
 # 生产环境配置
