@@ -163,13 +163,14 @@
 
 				try {
 					const response = await fetch("/db-version");
-					const data = await response.json();
+					const result = await response.json();
 
-					if (data.success) {
-						versionEl.innerHTML = data.version;
+					if (result.success && result.data) {
+						versionEl.innerHTML = result.data.version;
 						statusDot.className = "status-dot success";
 					} else {
-						versionEl.innerHTML = `<span class="error">❌ ${data.message}: ${data.error}</span>`;
+						const errorMsg = result.message || "未知错误";
+						versionEl.innerHTML = `<span class="error">❌ ${errorMsg}</span>`;
 						statusDot.className = "status-dot error";
 					}
 				} catch (error) {
