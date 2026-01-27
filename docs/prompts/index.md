@@ -125,3 +125,9 @@ Error: [WebSearch - All Providers Failed]
 ```log
 WebSearch hook returned blocking error
 ```
+
+### 05 对比代码，生成对比差异文件
+
+1. 这是目前高频更改的本地临时文件， `C:\Users\pc\.ccs\hooks\websearch-transformer.cjs` ，只要 ccs 重启终端，该文件就会被覆盖重写。
+2. 这是目前 ccs 官方的文件 `https://github.com/kaitranntt/ccs/blob/main/lib/hooks/websearch-transformer.cjs` 。
+3. 请你帮我编写一个 git diff 文件。对比有意义的文件修改差异，不包括那些代码格式化相关的修改。便于我直观了解清楚修改了那些内容。
