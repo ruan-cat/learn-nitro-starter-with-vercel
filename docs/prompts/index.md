@@ -59,3 +59,9 @@
 - 编写语法与格式： https://code.claude.com/docs/zh-CN/skills
 - 最佳实践： https://platform.claude.com/docs/zh-CN/agents-and-tools/agent-skills/best-practices
 - 规范文档： https://agentskills.io/home
+
+## 003 精简、优化、改造 nitro-api-development 技能为通用技能
+
+请你深度阅读 `.claude\skills\nitro-api-development` 目录内的技能。对比本项目这个比较全新的，干净的 nitro 场景，将特化的，专门的 nitro 做法找出来。并想办法改造成一个通用的，面向从零开始项目的，skills 技能文档。
+
+将你找到的特化项，专用项，全部找出来，并用 claude code 询问的交互式询问工具询问我，那些相互需要我审核并删除。
