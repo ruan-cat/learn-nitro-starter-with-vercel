@@ -28,18 +28,26 @@
    ```
 
 4. **超时错误**
+
    ```log
    spawnSync C:\Windows\system32\cmd.exe ETIMEDOUT
    ```
 
+5. **参数解析错误**
+
+   ```log
+   Not enough arguments following: prompt
+   ```
+
 ## 3. 根本原因分析
 
-| 序号 |            问题             |                        原因                        |
-| :--: | :-------------------------: | :------------------------------------------------: |
-|  1   |     `-p` 标志与位置参数     |  Gemini CLI 更新后废弃了 `-p` 标志，改用位置参数   |
-|  2   |  ImportProcessor 扫描错误   |  spawnSync 继承当前工作目录，Gemini CLI 扫描项目   |
-|  3   | GEMINI_API_KEY 环境变量缺失 | settings.json 配置为 API Key 模式，而非 OAuth 模式 |
-|  4   |          执行超时           |          默认 55 秒超时对网络搜索任务不足          |
+| 序号 |            问题             |                         原因                          |
+| :--: | :-------------------------: | :---------------------------------------------------: |
+|  1   |     `-p` 标志与位置参数     |    Gemini CLI 更新后废弃了 `-p` 标志，改用位置参数    |
+|  2   |  ImportProcessor 扫描错误   |    spawnSync 继承当前工作目录，Gemini CLI 扫描项目    |
+|  3   | GEMINI_API_KEY 环境变量缺失 |  settings.json 配置为 API Key 模式，而非 OAuth 模式   |
+|  4   |          执行超时           |           默认 55 秒超时对网络搜索任务不足            |
+|  5   |        参数解析错误         | 多行 prompt 作为命令行参数在 Windows shell 中解析失败 |
 
 ## 4. 文件修改对比
 
@@ -81,7 +89,7 @@ if (process.env.CCS_DEBUG) {
 
 ```javascript
 if (process.env.CCS_DEBUG) {
-	console.error(`[CCS Hook] Executing: gemini --model ${model} --output-format text "..."`);
+	console.error(`[CCS Hook] Executing: echo "..." | gemini --model ${model} --output-format text`);
 }
 ```
 
@@ -105,11 +113,12 @@ const spawnResult = spawnSync("gemini", ["--model", model, "--yolo", "-p", promp
 **修改后**:
 
 ```javascript
-const spawnResult = spawnSync("gemini", ["--model", model, "--output-format", "text", prompt], {
+const spawnResult = spawnSync("gemini", ["--model", model, "--output-format", "text"], {
 	encoding: "utf8",
 	timeout: timeoutMs,
 	maxBuffer: 1024 * 1024 * 2,
 	stdio: ["pipe", "pipe", "pipe"],
+	input: prompt,
 	shell: process.platform === "win32",
 	cwd: process.env.HOME || process.env.USERPROFILE || "/tmp",
 });
@@ -117,19 +126,21 @@ const spawnResult = spawnSync("gemini", ["--model", model, "--output-format", "t
 
 **修改点汇总**:
 
-|    项目    |           原版           |                           修改后                            |
-| :--------: | :----------------------: | :---------------------------------------------------------: |
-| 命令行参数 |    `--yolo -p prompt`    |                `--output-format text prompt`                |
-|   shell    |          （无）          |               `process.platform === "win32"`                |
-|    cwd     | （无，继承当前工作目录） | `process.env.HOME \|\| process.env.USERPROFILE \|\| "/tmp"` |
+|    项目     |           原版           |                           修改后                            |
+| :---------: | :----------------------: | :---------------------------------------------------------: |
+| 命令行参数  |    `--yolo -p prompt`    |                   `--output-format text`                    |
+| prompt 传递 |      命令行位置参数      |                  通过 `input` 选项 (stdin)                  |
+|    shell    |          （无）          |               `process.platform === "win32"`                |
+|     cwd     | （无，继承当前工作目录） | `process.env.HOME \|\| process.env.USERPROFILE \|\| "/tmp"` |
 
 **修改原因**:
 
 1. **移除 `--yolo`**: 该参数会自动批准所有工具调用，在搜索场景下不必要
 2. **移除 `-p`**: Gemini CLI 新版废弃了 `-p` 标志，改用位置参数
 3. **添加 `--output-format text`**: 与 task-complete-notifier.sh 保持一致，使输出更简洁
-4. **添加 `shell: true`**: Windows 平台需要通过 shell 执行命令
-5. **添加 `cwd`**: 避免 Gemini CLI 扫描当前项目目录的 CLAUDE.md 文件
+4. **通过 stdin 传递 prompt**: 使用 `input` 选项而非命令行参数，避免多行文本在 Windows shell 中的解析问题
+5. **添加 `shell: true`**: Windows 平台需要通过 shell 执行命令
+6. **添加 `cwd`**: 避免 Gemini CLI 扫描当前项目目录的 CLAUDE.md 文件
 
 ---
 
@@ -171,15 +182,58 @@ Query: "Nitro v3 breaking changes"
 Nitro v3 确实引入了一些重要的破坏性变更...
 ```
 
-## 6. 经验教训
+## 6. 已知限制：UI 显示 "blocking error"
 
-1. **Gemini CLI 版本兼容性**: 新版 Gemini CLI 废弃了 `-p/--prompt` 标志，需要使用位置参数
+### 6.1. 问题描述
+
+虽然 WebSearch 功能正常工作，但 Claude Code CLI 会显示 "blocking error" 提示：
+
+```log
+PreToolUse:WebSearch hook blocking error from command: "node ..."
+```
+
+### 6.2. 原因分析
+
+这是 **Claude Code CLI 的设计限制**，而非真正的错误：
+
+1. **Hook 机制限制**: 为了让 Claude 读取到搜索结果，必须使用 `permissionDecision: "deny"`
+2. **UI 硬编码**: Claude Code CLI 将任何 `deny` 决策都显示为 "blocking error"
+3. **无法绕过**: 即使使用 `exit(0)` 和正确的 JSON 格式，UI 仍会显示此提示
+
+### 6.3. 功能状态
+
+|      方面       |           状态           |
+| :-------------: | :----------------------: |
+|    搜索功能     |       ✅ 正常工作        |
+| Claude 获取结果 |         ✅ 成功          |
+|     UI 显示     | ⚠️ 显示 "blocking error" |
+
+### 6.4. Claude Code Hook 输出规范
+
+根据官方文档，`permissionDecision` 有以下选项：
+
+|    值     | 工具是否执行 |       显示给 Claude        |    显示给用户    |
+| :-------: | :----------: | :------------------------: | :--------------: |
+| `"allow"` |      是      |  `additionalContext` 可选  |    无特殊提示    |
+| `"deny"`  |      否      | `permissionDecisionReason` | "blocking error" |
+|  `"ask"`  |   用户决定   |             无             |  弹出确认对话框  |
+
+**结论**: 要让 Claude 读取自定义搜索结果，必须使用 `"deny"`，这必然导致 UI 显示 "blocking error"。
+
+## 7. 经验教训
+
+1. **Gemini CLI 版本兼容性**: 新版 Gemini CLI 废弃了 `-p/--prompt` 标志，需要使用位置参数或 stdin
 2. **工作目录隔离**: 调用外部 CLI 工具时，应显式设置 `cwd` 避免扫描当前项目目录
 3. **认证模式一致性**: 确保 settings.json 中的认证模式与实际认证方式匹配
 4. **超时时间配置**: 网络请求任务需要更长的超时时间
+5. **多行文本传递**: 在 Windows 平台上，多行文本应通过 stdin 传递而非命令行参数
+6. **Hook 机制限制**: Claude Code 的 hook `deny` 决策会显示为 "blocking error"，这是设计限制而非 bug
 
-## 7. 建议后续行动
+## 8. 建议后续行动
 
 1. 向 CCS 项目提交 Issue 或 PR，更新 websearch-transformer.cjs 以兼容新版 Gemini CLI
 2. 考虑将超时时间改为可配置参数
 3. 添加更详细的错误日志，便于问题排查
+4. 向 Claude Code 团队提交 Feature Request，建议：
+   - 添加 `permissionDecision: "replace"` 选项用于工具替换场景
+   - 或修改 UI 显示逻辑，区分 "error" 和 "graceful denial"
