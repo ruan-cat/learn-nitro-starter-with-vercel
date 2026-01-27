@@ -115,3 +115,13 @@ Error: [WebSearch - All Providers Failed]
 
 1. 阅读 https://github.com/ruan-cat/monorepo/blob/main/claude-code-marketplace/common-tools/scripts/task-complete-notifier.sh 文件。
 2. 这个钩子同样是不需要使用 gemini 的登录验证的。为什么我提供的这个脚本内，直接使用 gemini 不会出现需要登录验证的情况，而 `C:\Users\pc\.ccs\hooks\websearch-transformer.cjs` 代码却需要验证呢？
+
+### 04 能够完成联网搜索了，但是还是出现报错
+
+返回结果竟然是以报错的形式返回的。这太奇怪了。
+
+出现这样的报错：
+
+```log
+WebSearch hook returned blocking error
+```
