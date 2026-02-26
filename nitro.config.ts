@@ -1,4 +1,8 @@
 import { defineConfig } from "nitro";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // https://nitro.build/config
 export default defineConfig({
@@ -10,6 +14,12 @@ export default defineConfig({
 		cloudflare: "2024-09-19",
 		// https://nitro.build/deploy/providers/vercel#observability
 		vercel: "2024-09-19",
+	},
+
+	// 使用绝对路径配置别名
+	alias: {
+		"@": path.resolve(__dirname, "src"),
+		server: path.resolve(__dirname, "server"),
 	},
 
 	serverDir: "server",
