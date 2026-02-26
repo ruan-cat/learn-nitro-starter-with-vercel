@@ -4,7 +4,14 @@ import { defineConfig } from "nitro";
 export default defineConfig({
 	// 不推荐 应该在 nitro 的 build 命令内指定 preset
 	// preset: "vercel",
-	compatibilityDate: "latest",
+
+	compatibilityDate: {
+		// https://v3.nitro.build/deploy/providers/cloudflare
+		cloudflare: "2024-09-19",
+		// https://nitro.build/deploy/providers/vercel#observability
+		vercel: "2024-09-19",
+	},
+
 	serverDir: "server",
 	imports: false,
 
