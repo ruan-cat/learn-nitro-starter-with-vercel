@@ -162,7 +162,7 @@
 				const statusDot = document.getElementById("statusDot");
 
 				try {
-					const response = await fetch("/db-version");
+					const response = await fetch("/api/db-version");
 					const result = await response.json();
 
 					if (result.success && result.data) {
