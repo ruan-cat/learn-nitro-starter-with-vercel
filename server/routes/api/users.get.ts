@@ -4,8 +4,8 @@
  * GET /users
  */
 
-import { defineApiHandler } from "../utils/api";
-import { db, usersTable } from "../db";
+import { defineApiHandler } from "server/utils/api";
+import { db, usersTable } from "server/db";
 
 export default defineApiHandler(
 	async () => {

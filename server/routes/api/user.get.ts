@@ -4,7 +4,7 @@
  * GET /user
  */
 
-import { defineSimpleHandler } from "../utils/api";
+import { defineSimpleHandler } from "server/utils/api";
 
 export default defineSimpleHandler(() => ({
 	name: "John Doe",

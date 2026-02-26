@@ -5,13 +5,13 @@
  */
 
 import { readBody } from "nitro/h3";
-import { defineApiHandler, badRequest } from "../utils/api";
-import { db, usersTable } from "../db";
-import type { InsertUser } from "../db";
+import { defineApiHandler, badRequest } from "server/utils/api";
+import { db, usersTable } from "server/db";
+import type { InsertUser } from "server/db";
 
 export default defineApiHandler(
 	async (event) => {
-		const body = await readBody<InsertUser>(event);
+		const body = (await readBody<InsertUser>(event))!;
 
 		if (!body.name || !body.email) {
 			throw badRequest("name 和 email 是必填字段");

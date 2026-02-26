@@ -4,8 +4,8 @@
  * GET /db-version
  */
 
-import { defineApiHandler } from "../utils/api";
-import { db } from "../db";
+import { defineApiHandler } from "server/utils/api";
+import { db } from "server/db";
 import { sql } from "drizzle-orm";
 
 export default defineApiHandler(
