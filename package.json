@@ -48,5 +48,10 @@
 		"simple-git-hooks": "^2.13.1",
 		"taze": "^19.9.2",
 		"wrangler": "^4.59.3"
+	},
+	"author": {
+		"name": "ruan-cat",
+		"email": "1219043956@qq.com",
+		"url": "https://github.com/ruan-cat"
 	}
 }
