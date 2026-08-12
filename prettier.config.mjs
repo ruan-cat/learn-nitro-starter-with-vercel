@@ -1,5 +1,4 @@
 import * as prettierPluginOxc from "@prettier/plugin-oxc";
-import prettierPluginLintMd from "prettier-plugin-lint-md";
 
 // @ts-check
 /** @type {import("prettier").Config} */
@@ -26,7 +25,7 @@ const config = {
 	jsxSingleQuote: true,
 	useTabs: true,
 	tabWidth: 2,
-	endOfLine: "auto",
+	endOfLine: "lf",
 	"space-around-alphabet": true,
 	"space-around-number": true,
 	"no-empty-code-lang": false,
