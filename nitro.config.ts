@@ -1,6 +1,7 @@
 import { defineConfig } from "nitro";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import pkg from "./package.json" with { type: "json" };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,7 +31,7 @@ export default defineConfig({
 		meta: {
 			title: "learn-nitro-starter API",
 			description: "Nitro v3 学习项目接口文档",
-			version: "1.0.0",
+			version: pkg.version,
 		},
 		route: "/openapi.json",
 		production: "prerender",
