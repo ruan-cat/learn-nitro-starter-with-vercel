@@ -22,6 +22,20 @@ export default defineConfig({
 		server: path.resolve(__dirname, "server"),
 	},
 
+	experimental: {
+		openAPI: true,
+	},
+
+	openAPI: {
+		meta: {
+			title: "learn-nitro-starter API",
+			description: "Nitro v3 学习项目接口文档",
+			version: "1.0.0",
+		},
+		route: "/openapi.json",
+		production: "prerender",
+	},
+
 	serverDir: "server",
 	imports: false,
 
