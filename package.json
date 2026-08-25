@@ -13,7 +13,7 @@
 		"git:dev-2-main": "git rebase dev main && pnpm run git:push",
 		"git:main-2-dev": "git rebase main dev",
 		"env:pull": "vercel env pull .env",
-		"dev": "nitro dev",
+		"dev": "nitro dev --port=8080",
 		"build": "pnpm build:vercel",
 		"build:vercel": "nitro build --preset=vercel",
 		"build:cloudflare": "nitro build --preset=cloudflare_module",
