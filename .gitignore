@@ -11,3 +11,6 @@ dist
 pnpm-lock.yaml
 
 .env*.local
+
+# 不需要提交来自 WorkBuddy 的本地记忆文件
+.workbuddy
