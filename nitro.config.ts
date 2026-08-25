@@ -33,8 +33,13 @@ export default defineConfig({
 			description: "Nitro v3 学习项目接口文档",
 			version: pkg.version,
 		},
-		route: "/openapi.json",
 		production: "prerender",
+		route: "/openapi.json",
+		ui: {
+			scalar: {
+				route: "/scalar",
+			},
+		},
 	},
 
 	serverDir: "server",
