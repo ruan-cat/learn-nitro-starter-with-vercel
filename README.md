@@ -42,6 +42,34 @@ npm run dev
 pnpm dlx giget@latest nitro nitro-app --install
 ```
 
+## Vercel 云部署说明
+
+本项目托管在 Vercel 云平台，由 Git 集成自动构建部署。
+
+### 1. 云项目位置
+
+- Vercel 项目地址：https://vercel.com/ruancat-projects/learn-nitro-starter-with-vercel
+- Vercel 项目名称：`learn-nitro-starter-with-vercel`
+- 生产环境可访问地址：https://learn-nitro-starter-with-vercel.vercel.app/
+
+### 2. 部署迭代方式
+
+本项目通过 **git commit 触发部署**：当 `main` 分支发生变化并推送到 GitHub 远端时，Vercel 的 Git 集成会自动触发构建与部署，无需手动操作。
+
+```bash
+# 提交并推送 main 分支后，Vercel 自动开始构建部署
+git push origin main
+```
+
+部署链路如下：
+
+1. 本地完成代码修改并 `git commit`。
+2. `git push` 将提交推送到 GitHub 仓库的 `main` 分支。
+3. Vercel Git 集成检测到 `main` 分支变更，自动执行 `pnpm build:vercel` 构建。
+4. 构建产物发布到生产环境，访问 https://learn-nitro-starter-with-vercel.vercel.app/ 即可看到最新版本。
+
+日常开发可在 `dev` 分支进行，需要发布时执行 `pnpm run git:dev-2-main`（以 `dev` 为基底将 `main` 变基，把 `dev` 的提交并入 `main` 并推送），即可触发生产部署。
+
 ## 导入到 cloudflare worker 内配置部署
 
 - 构建命令： `corepack use pnpm@latest && pnpm build:cloudflare`
