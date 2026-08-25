@@ -1,6 +1,7 @@
 {
 	"name": "nitro-app",
 	"private": true,
+	"homepage": "https://learn-nitro-starter-with-vercel.vercel.app/",
 	"type": "module",
 	"packageManager": "pnpm@10.28.1",
 	"engines": {
