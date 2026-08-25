@@ -3,6 +3,7 @@
 	"private": true,
 	"homepage": "https://learn-nitro-starter-with-vercel.vercel.app/",
 	"type": "module",
+	"version": "0.1.0",
 	"packageManager": "pnpm@10.28.1",
 	"engines": {
 		"node": ">=22.14.0"
