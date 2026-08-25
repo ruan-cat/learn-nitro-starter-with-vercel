@@ -131,3 +131,11 @@ WebSearch hook returned blocking error
 1. 这是目前高频更改的本地临时文件， `C:\Users\pc\.ccs\hooks\websearch-transformer.cjs` ，只要 ccs 重启终端，该文件就会被覆盖重写。
 2. 这是目前 ccs 官方的文件 `https://github.com/kaitranntt/ccs/blob/main/lib/hooks/websearch-transformer.cjs` 。
 3. 请你帮我编写一个 git diff 文件。对比有意义的文件修改差异，不包括那些代码格式化相关的修改。便于我直观了解清楚修改了那些内容。
+
+## 005 <!-- TODO: --> 调研合适的 nitro 接口生成接口请求信息表的工具
+
+我已经很熟练的使用 nitro v3 这个 serverless 接口开发工具，开发了很多接口了。但是我没办法批量生成类似于 openapi 这样的 json 信息表。只要能生成类似于 openapi 这样的 json 信息表，我就能找到其他合适的工具来生成 api 接口文档了。
+
+请你帮我在 github 内，或者是 npm 内，找到合适的方案，实现将 nitro 接口转换成接口文档信息。
+
+将你的调研信息，都写到 `docs\reports\2026-8-25-nitro-to-openapi` 内。
