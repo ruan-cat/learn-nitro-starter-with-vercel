@@ -1,6 +1,9 @@
 {
 	"extends": "nitro/tsconfig",
 	"compilerOptions": {
+		// === 2026-09-05 tsserver memory downgrade (PLAN v2 Task D Batch 3) ===
+		"incremental": true,
+		"tsBuildInfoFile": "./node_modules/.cache/tsconfig.tsbuildinfo",
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["src/*"],
