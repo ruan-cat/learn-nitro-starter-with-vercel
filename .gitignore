@@ -14,3 +14,5 @@ pnpm-lock.yaml
 
 # 不需要提交来自 WorkBuddy 的本地记忆文件
 .workbuddy
+# TypeScript 增量构建缓存
+*.tsbuildinfo
