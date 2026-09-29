@@ -806,7 +806,7 @@ export default eventHandler((event) => {
 
 ### 23.2. Cloudflare Workers
 
-- 构建命令：`corepack use pnpm@latest && pnpm build:cloudflare`
+- 构建命令：`pnpm i && pnpm build:cloudflare`
 - 使用 `--preset=cloudflare_module`
 - 配置了 Node.js 兼容性（`nodeCompat: true`）
 - 使用 wrangler 从 `.output/` 目录部署

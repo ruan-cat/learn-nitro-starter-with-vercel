@@ -72,7 +72,7 @@ git push origin main
 
 ## 导入到 cloudflare worker 内配置部署
 
-- 构建命令： `corepack use pnpm@latest && pnpm build:cloudflare`
+- 构建命令： `pnpm i && pnpm build:cloudflare`
 - 部署命令： `npx wrangler deploy .output/server/index.mjs --assets .output/public`
 
 ## package.json 各个命令的说明
